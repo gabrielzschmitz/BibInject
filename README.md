@@ -1,17 +1,18 @@
-# 💉 BibInject
+<h1 align="center">💉 BibInject</h1>
+<p align="center">
+  <img src="./static/icons/logov1.0.svg" alt="BibInject Logo" width="256">
 
-<!-- <p align="center"> -->
-<!--   <img src="./static/icons/bibinject-logo.svg" alt="BibInject Logo" width="200"> -->
-<!--    -->
-<!--   <p align="center"> -->
-<!--     <em> -->
-<!--       Logo image by -->
-<!--       <a href="https://gabrielzschmitz.github.io">gabrielzschmitz</a>, -->
-<!--       licensed under -->
-<!--       <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons 4.0 Attribution license</a>. -->
-<!--     </em> -->
-<!--   </p> -->
-<!-- </p> -->
+  <p align="center">
+    <em>
+      Logo image by
+      <a href="https://gabrielzschmitz.github.io">gabrielzschmitz</a>,
+      licensed under
+      <a href="https://creativecommons.org/licenses/by/4.0/">
+      Creative Commons 4.0 Attribution license
+      </a>.
+    </em>
+  </p>
+</p>
 
 **BibInject** is a Python tool that parses `.bib` (BibTeX) files and generates
 valid, styled HTML references. It can inject these references directly into
