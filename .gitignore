@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Environment variable files
+.env
+
+# macOS / Linux system files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE settings
+.vscode/
+.idea/
+
+# Compiled files / logs
+*.log
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MyPy and Pyre type checker
+.mypy_cache/
+.pyre/
+
+# Coverage reports
+htmlcov/
+.coverage
+.cache
+.pytest_cache/
+
+# Unit test / test output
+.tox/
+nosetests.xml
+coverage.xml
+test-output/
+junit-*.xml
+
+# PEP 582; used by some Python managers like `pdm`
+__pypackages__/
+
+# Static and template cache (if generated)
+staticfiles/
+templates_c/
+
+# Local user settings
+*.sublime-workspace
+*.sublime-project
