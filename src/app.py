@@ -10,11 +10,12 @@ This module initializes and runs the BibInject application.
 # Local Imports
 from BibInject import __version__, __author__
 
+
 def main():
     """
     Entry point for application logic.
     """
-    print(f"BibInject v{__version__} by {__author__}")
+    print(f"BibInject v{__version__} by {__author__}\n")
 
 
 if __name__ == "__main__":
