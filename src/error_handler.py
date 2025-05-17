@@ -44,10 +44,10 @@ class ErrorHandler:
     for automatic exception handling and logging of known errors.
 
     Args:
-        log_file (str): Path to the log file. Defaults to 'app.log'.
+        log_file (str): Path to the log file. Defaults to '/tmp/BibInject.log'.
     """
 
-    def __init__(self, log_file: str = "app.log"):
+    def __init__(self, log_file: str = "/tmp/BibInject.log"):
         self.logger = logging.getLogger("BibInject")
         self.logger.setLevel(logging.INFO)
 
