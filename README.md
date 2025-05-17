@@ -1,28 +1,18 @@
 # BibInject
 
-<div style="float: right; text-align: right; width: 256px;">
-  <img src="./static/icons/logov1.1.png" width="256" alt="BibInject Logo">
-  <div style="font-style: italic; font-size: 0.9em;">
-    Logo image by
-    <a href="https://gabrielzschmitz.github.io">gabrielzschmitz</a>, <br>
-    licensed under
-    <a href="https://creativecommons.org/licenses/by/4.0/">
-      CC4.0 
-    </a>.
-  </div >
-</div>
-
+<img align="right" width="256px" src="./static/icons/logov1.1.png">
+  
 ![Version Badge](https://img.shields.io/badge/version-v1.0-pink)
 
-**BibInject** is a Python tool for parsing `.bib` (BibTeX) files and generating valid, styled HTML references. It supports injecting these references directly into existing HTML files at predefined targets.
+**BibInject** is a Python tool for parsing `.bib` (BibTeX) files and generating
+valid, styled HTML references. It supports injecting these references directly
+into existing HTML files at predefined targets.
 
-Built with simplicity in mind, BibInject helps you keep your bibliography organized and presentation-ready without the overhead of complex pipelines. It's perfect for blogs, project pages, or academic sites that need lightweight citation integration without relying on JavaScript-based renderers or external services.
-
-
-Would you like me to add sections like **Installation**, **Usage**, or **Examples** as well?
-
-Great for automating bibliography sections on academic websites, research blogs,
-and online CVs.
+Built with simplicity in mind, BibInject helps you keep your bibliography
+organized and presentation-ready without the overhead of complex pipelines. It's
+perfect for blogs, project pages, or academic sites that need lightweight
+citation integration without relying on JavaScript-based renderers or external
+services.
 
 Includes:
 - CLI tool and Github Actions example for automation
