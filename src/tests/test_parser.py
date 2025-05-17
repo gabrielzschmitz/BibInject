@@ -27,18 +27,23 @@ def template_file(tmp_path):
     return str(file_path)
 
 
-def test_get_entries_dict(template_file):
+def test_get_entries_dict(template_file, caplog):
+    caplog.set_level(logging.INFO)
     p = Parser(template_file)
     entries = p.get_entries_dict()
 
     assert "Cesar2013" in entries
+    assert isinstance(entries, dict)
     assert entries["Cesar2013"]["author"].value == "Jean César, Ary Costa"
     assert entries["Cesar2013"]["title"].value == "An amazing title"
+    logger.info(f"entries dict: {entries}")
 
 
-def test_get_comments(template_file):
+def test_get_comments(template_file, caplog):
+    caplog.set_level(logging.INFO)
     p = Parser(template_file)
     comments = p.get_comments()
 
     assert isinstance(comments, list)
     assert "This is my example comment." in comments
+    logger.info(f"entries list: {list}")
