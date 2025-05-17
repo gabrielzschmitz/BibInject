@@ -31,10 +31,31 @@ class InjectionError(Exception):
         super().__init__(message or default)
 
 
+class ParsingError(Exception):
+    """Raised when an error occurs while attempting to parse a file."""
+    def __init__(self, message=None):
+        default = "An error occurred while parsing the file."
+        super().__init__(message or default)
+
+
+class FileNotFoundError(Exception):
+    """Raised when an error occurs when file is not found."""
+    def __init__(self, message=None):
+        default = "File not found."
+        super().__init__(message or default)
+
+
 class FileWriteError(Exception):
     """Raised when an error occurs while attempting to write to a file."""
     def __init__(self, message=None):
         default = "An error occurred while writing to the file."
+        super().__init__(message or default)
+
+
+class FileReadError(Exception):
+    """Raised when an error occurs while attempting to read a file."""
+    def __init__(self, message=None):
+        default = "An error occurred while reading the file."
         super().__init__(message or default)
 
 
@@ -66,7 +87,8 @@ class ErrorHandler:
         """
         Decorator to automatically log and suppress known exceptions.
 
-        Catches TemplateNotFoundError, DivNotFoundError, InjectionError, and FileWriteError,
+        Catches TemplateNotFoundError, TemplateReadError, DivNotFoundError,
+        InjectionError, ParsingError, FileWriteError and FileReadError
         logs the error message, and suppresses the exception.
         Logs any other unhandled exceptions with the stack trace.
 
@@ -79,11 +101,14 @@ class ErrorHandler:
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except (TemplateNotFoundError, 
+            except (TemplateNotFoundError,
                     TemplateReadError,
                     DivNotFoundError,
                     InjectionError,
-                    FileWriteError
+                    ParsingError,
+                    FileNotFoundError,
+                    FileWriteError,
+                    FileReadError
             ) as e:
                 self.logger.error(f"{type(e).__name__}: {e}")
             except Exception:
