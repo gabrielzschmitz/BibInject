@@ -4,7 +4,10 @@ from error_handler import (
     TemplateReadError,
     DivNotFoundError,
     InjectionError,
+    ParsingError,
+    FileNotFoundError,
     FileWriteError,
+    FileReadError,
     ErrorHandler,
 )
 
@@ -16,7 +19,10 @@ def test_custom_error_messages():
     assert str(TemplateReadError("Read failed")) == "Read failed"
     assert str(DivNotFoundError("DIV not found")) == "DIV not found"
     assert str(InjectionError("Bad injection")) == "Bad injection"
+    assert str(ParsingError("Parsing failed")) == "Parsing failed"
+    assert str(FileNotFoundError("File missing")) == "File missing"
     assert str(FileWriteError("Write failed")) == "Write failed"
+    assert str(FileReadError("Read failed")) == "Read failed"
 
 
 def test_default_error_messages():
@@ -25,7 +31,10 @@ def test_default_error_messages():
     assert str(TemplateReadError()) == "Failed to read HTML template content."
     assert str(DivNotFoundError()) == "Target <div> element was not found in the HTML."
     assert str(InjectionError()) == "Failed to inject BibTeX content into the HTML."
+    assert str(ParsingError()) == "An error occurred while parsing the file."
+    assert str(FileNotFoundError()) == "File not found."
     assert str(FileWriteError()) == "An error occurred while writing to the file."
+    assert str(FileReadError()) == "An error occurred while reading the file."
 
 
 def test_error_handler_logging_info(caplog):
