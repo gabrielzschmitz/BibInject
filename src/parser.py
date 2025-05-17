@@ -1,12 +1,17 @@
 # Third-Party Library Imports
 import bibtexparser
-import logging
+from pathlib import Path
 
 # Local Imports
+from error_handler import (
+    ErrorHandler,
+    ParsingError,
+    FileNotFoundError
+)
 
-# Configure basic logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+
+# Initialize Error Handling
+error_handler = ErrorHandler()
 
 
 class Parser:
@@ -14,22 +19,30 @@ class Parser:
     A utility class for parsing bibtext files.
     """
 
-    def __init__(self, file: str):
-        self._library = bibtexparser.parse_file(file)
-        if len(self._library.failed_blocks) > 0:
-            logger.warning("Some blocks failed to parse. Failed blocks: %s.",
-                           self._library.failed_blocks)
+    def __init__(self, file_path: str):
+        self._file_path = Path(file_path)
+        if not self._file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        self._library = bibtexparser.parse_file(self._file_path)
+
+        if self._library is None:
+            raise ParsingError(f"An error occured while parsing {file_path}")
+        elif len(self._library.failed_blocks) > 0:
+            error_handler.warning(f"Some blocks failed to parse. Failed blocks:\
+                                    {self._library.failed_blocks}")
         else:
-            logger.info("All blocks parsed successfully")
+            error_handler.info("All blocks parsed successfully")
 
         self._entries = self._library.entries
+        self._comments = self._library.comments
 
     def get_entries_dict(self) -> dict:
-        """returns all entries in a Library as a dict"""
+        """returns all entries in Library as dict"""
         entries_dict = {}
 
         if not self._entries:
-            return entries_dict
+            return {}
 
         for entry in self._entries:
             key = entry.key or None
@@ -37,6 +50,8 @@ class Parser:
 
         return entries_dict
 
-    def get_comments(self) -> [str]:
-        """returns all comments in a Library as a list"""
-        return [comment.comment for comment in self._library.comments]
+    def get_comments_list(self) -> [str]:
+        """returns all comments in Library as list"""
+        if not self._comments:
+            return []
+        return [comment.comment for comment in self._comments]
