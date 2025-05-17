@@ -1,2 +1,1 @@
 git+https://github.com/sciunto-org/python-bibtexparser@main#egg=bibtexparser
-
