@@ -86,7 +86,7 @@ class ErrorHandler:
                     FileWriteError
             ) as e:
                 self.logger.error(f"{type(e).__name__}: {e}")
-            except Exception as e:
+            except Exception:
                 self.logger.exception("Unhandled exception occurred")
         return wrapper
 

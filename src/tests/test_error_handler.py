@@ -1,5 +1,4 @@
 import logging
-import pytest
 from error_handler import (
     TemplateNotFoundError,
     TemplateReadError,
