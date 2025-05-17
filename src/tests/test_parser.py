@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def template_file(tmp_path):
+def sample_file(tmp_path):
     bib_content = textwrap.dedent("""
     @comment{
         This is my example comment.
@@ -28,9 +28,9 @@ def template_file(tmp_path):
     return str(file_path)
 
 
-def test_get_entries_dict(template_file, caplog):
+def test_get_entries_dict(sample_file, caplog):
     caplog.set_level(logging.INFO)
-    p = Parser(template_file)
+    p = Parser(sample_file)
     entries = p.get_entries_dict()
 
     assert "Cesar2013" in entries
@@ -40,9 +40,9 @@ def test_get_entries_dict(template_file, caplog):
     logger.info(f"entries dict: {entries}")
 
 
-def test_get_comments(template_file, caplog):
+def test_get_comments(sample_file, caplog):
     caplog.set_level(logging.INFO)
-    p = Parser(template_file)
+    p = Parser(sample_file)
     comments = p.get_comments_list()
 
     assert isinstance(comments, list)
