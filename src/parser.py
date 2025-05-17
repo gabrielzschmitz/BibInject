@@ -16,10 +16,22 @@ error_handler = ErrorHandler()
 
 class Parser:
     """
-    A utility class for parsing bibtext files.
+    A utility class for parsing BibTeX files and extracting entries and
+    comments.
     """
 
     def __init__(self, file_path: str):
+        """
+        Initializes the Parser instance and loads the BibTeX file.
+
+        Args:
+            file_path (str): Path to the BibTeX (.bib) file to be parsed.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            ParsingError: If parsing the file fails or results in invalid
+            blocks.
+        """
         self._file_path = Path(file_path)
         if not self._file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -38,7 +50,13 @@ class Parser:
         self._comments = self._library.comments
 
     def get_entries_dict(self) -> dict:
-        """returns all entries in Library as dict"""
+        """
+        Returns all BibTeX entries as a dictionary.
+
+        Returns:
+            dict: A dictionary where keys are entry identifiers and values are
+            field dictionaries. If an entry has no key, `None` is used.
+        """
         entries_dict = {}
 
         if not self._entries:
@@ -51,7 +69,13 @@ class Parser:
         return entries_dict
 
     def get_comments_list(self) -> [str]:
-        """returns all comments in Library as list"""
+        """
+        Returns all comments from the BibTeX file.
+
+        Returns:
+            list[str]: A list of comment strings extracted from the BibTeX
+            file.
+        """
         if not self._comments:
             return []
         return [comment.comment for comment in self._comments]
