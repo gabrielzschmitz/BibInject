@@ -9,7 +9,7 @@ from error_handler import (
     TemplateReadError,
     DivNotFoundError,
     InjectionError,
-    FileWriteError
+    FileWriteError,
 )
 
 
@@ -32,13 +32,13 @@ class Injector:
 
         error_handler.info(f"Loaded template from '{template_path}'")
 
-
     def _read_template(self) -> str:
-        content = self.template_path.read_text(encoding='utf-8')
+        content = self.template_path.read_text(encoding="utf-8")
         if not content:
-            raise TemplateReadError(f"Template is empty or unreadable: {self.template_path}")
+            raise TemplateReadError(
+                f"Template is empty or unreadable: {self.template_path}"
+            )
         return content
-
 
     @error_handler.handle
     def inject_html(self, html_to_inject: str, target_id: str) -> str:
@@ -58,51 +58,51 @@ class Injector:
             OSError: If there is an issue reading the file.
         """
         open_div_pattern = re.compile(
-            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*\n',
-            re.MULTILINE
+            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*\n', re.MULTILINE
         )
         open_div_match = open_div_pattern.search(self.html)
         if not open_div_match:
             raise DivNotFoundError(f"Could not find <div id='{target_id}'>")
 
-        base_indent = open_div_match.group('indent')
+        base_indent = open_div_match.group("indent")
         indent_unit = self._detect_indent_unit()
 
-        inject_lines = html_to_inject.strip('\n').splitlines()
+        inject_lines = html_to_inject.strip("\n").splitlines()
         indented_html = "\n".join(
-            f"{base_indent}{indent_unit}{line}"
-            for line in inject_lines
+            f"{base_indent}{indent_unit}{line}" for line in inject_lines
         )
 
         full_div_pattern = re.compile(
             rf'(^[ \t]*<div\s+id="{target_id}"[^>]*>\s*\n)'
-            rf'(.*?)'
-            rf'(^[ \t]*</div>)',
-            re.DOTALL | re.MULTILINE
+            rf"(.*?)"
+            rf"(^[ \t]*</div>)",
+            re.DOTALL | re.MULTILINE,
         )
 
         if not full_div_pattern.search(self.html):
-            raise InjectionError(f"Full <div id='{target_id}'> block not found for injection.")
+            raise InjectionError(
+                f"Full <div id='{target_id}'> block not found for injection."
+            )
 
         result = full_div_pattern.sub(
             lambda match: f"{match.group(1)}{indented_html}\n{match.group(3)}",
-            self.html
+            self.html,
         )
 
         error_handler.info(f"HTML successfully injected into <div id='{target_id}'>")
         return result
 
-
     def _detect_indent_unit(self) -> str:
         for line in self.html.splitlines():
             stripped = line.lstrip()
             if stripped and len(line) > len(stripped):
-                return line[:len(line) - len(stripped)]
+                return line[: len(line) - len(stripped)]
         return "  "  # fallback to 2 spaces
 
-
     @error_handler.handle
-    def save_injected_html_as(self, html_to_inject: str, target_id: str, output_path: str) -> None:
+    def save_injected_html_as(
+        self, html_to_inject: str, target_id: str, output_path: str
+    ) -> None:
         """
         Saves the HTML with the injected content into a new file.
 
@@ -118,17 +118,20 @@ class Injector:
         path = Path(output_path)
 
         if path.exists() and not path.is_file():
-            raise FileWriteError(f"Output path '{output_path}' exists but is not a file.")
+            raise FileWriteError(
+                f"Output path '{output_path}' exists but is not a file."
+            )
 
-        written = path.write_text(result, encoding='utf-8')
+        written = path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to '{output_path}'")
 
         error_handler.info(f"Injected HTML saved to '{output_path}'")
 
-
     @error_handler.handle
-    def replace_template_with_injected_html(self, html_to_inject: str, target_id: str) -> None:
+    def replace_template_with_injected_html(
+        self, html_to_inject: str, target_id: str
+    ) -> None:
         """
         Overwrites the original template file with the injected HTML content.
 
@@ -141,7 +144,7 @@ class Injector:
         """
         result = self.inject_html(html_to_inject, target_id)
 
-        written = self.template_path.write_text(result, encoding='utf-8')
+        written = self.template_path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to template '{self.template_path}'")
 
