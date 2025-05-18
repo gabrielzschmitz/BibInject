@@ -5,9 +5,11 @@ from injector import Injector
 
 logger = logging.getLogger(__name__)
 
+
 @pytest.fixture
 def template_file(tmp_path):
-    html_content = textwrap.dedent("""
+    html_content = textwrap.dedent(
+        """
         <!DOCTYPE html>
         <html lang="en">
           <head>
@@ -29,7 +31,8 @@ def template_file(tmp_path):
             </footer>
           </body>
         </html>
-    """)
+    """
+    )
     path = tmp_path / "sample-template.html"
     path.write_text(html_content, encoding="utf-8")
     logger.info(f"Template written to {path}")
@@ -37,7 +40,8 @@ def template_file(tmp_path):
 
 
 def test_inject_html(template_file, caplog):
-    html_to_inject = textwrap.dedent("""
+    html_to_inject = textwrap.dedent(
+        """
         <div class="injected-section">
           <h2>Injected Section</h2>
           <p>This content was dynamically added!</p>
@@ -46,7 +50,8 @@ def test_inject_html(template_file, caplog):
             <li>Second item</li>
           </ul>
         </div>
-    """)
+    """
+    )
 
     expected_injected = """<div id="my-publications">
       <div class="injected-section">
@@ -107,7 +112,9 @@ def test_replace_template_with_injected_html_overwrites_original(template_file, 
     injector.replace_template_with_injected_html(html_to_inject, "my-publications")
 
     new_content = template_file.read_text(encoding="utf-8")
-    assert "<span>Overwritten HTML</span>" in new_content, "Original template was not updated"
+    assert (
+        "<span>Overwritten HTML</span>" in new_content
+    ), "Original template was not updated"
 
     assert any(
         f"Replaced original file '{template_file}'" in message

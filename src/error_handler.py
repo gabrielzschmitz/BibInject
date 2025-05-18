@@ -5,6 +5,7 @@ from typing import Callable, Any
 
 class TemplateNotFoundError(Exception):
     """Raised when the specified HTML template cannot be found."""
+
     def __init__(self, message=None):
         default = "HTML template file was not found."
         super().__init__(message or default)
@@ -12,6 +13,7 @@ class TemplateNotFoundError(Exception):
 
 class TemplateReadError(Exception):
     """Raised when the specified HTML template have a error at reading."""
+
     def __init__(self, message=None):
         default = "Failed to read HTML template content."
         super().__init__(message or default)
@@ -19,6 +21,7 @@ class TemplateReadError(Exception):
 
 class DivNotFoundError(Exception):
     """Raised when the target <div> element is not found in the HTML content."""
+
     def __init__(self, message=None):
         default = "Target <div> element was not found in the HTML."
         super().__init__(message or default)
@@ -26,6 +29,7 @@ class DivNotFoundError(Exception):
 
 class InjectionError(Exception):
     """Raised when an error occurs during the injection of BibTeX data into the HTML."""
+
     def __init__(self, message=None):
         default = "Failed to inject BibTeX content into the HTML."
         super().__init__(message or default)
@@ -33,6 +37,7 @@ class InjectionError(Exception):
 
 class ParsingError(Exception):
     """Raised when an error occurs while attempting to parse a file."""
+
     def __init__(self, message=None):
         default = "An error occurred while parsing the file."
         super().__init__(message or default)
@@ -40,6 +45,7 @@ class ParsingError(Exception):
 
 class FileNotFoundError(Exception):
     """Raised when an error occurs when file is not found."""
+
     def __init__(self, message=None):
         default = "File not found."
         super().__init__(message or default)
@@ -47,6 +53,7 @@ class FileNotFoundError(Exception):
 
 class FileWriteError(Exception):
     """Raised when an error occurs while attempting to write to a file."""
+
     def __init__(self, message=None):
         default = "An error occurred while writing to the file."
         super().__init__(message or default)
@@ -54,6 +61,7 @@ class FileWriteError(Exception):
 
 class FileReadError(Exception):
     """Raised when an error occurs while attempting to read a file."""
+
     def __init__(self, message=None):
         default = "An error occurred while reading the file."
         super().__init__(message or default)
@@ -98,21 +106,24 @@ class ErrorHandler:
         Returns:
             Callable: The wrapped function with error handling.
         """
+
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except (TemplateNotFoundError,
-                    TemplateReadError,
-                    DivNotFoundError,
-                    InjectionError,
-                    ParsingError,
-                    FileNotFoundError,
-                    FileWriteError,
-                    FileReadError
+            except (
+                TemplateNotFoundError,
+                TemplateReadError,
+                DivNotFoundError,
+                InjectionError,
+                ParsingError,
+                FileNotFoundError,
+                FileWriteError,
+                FileReadError,
             ) as e:
                 self.logger.error(f"{type(e).__name__}: {e}")
             except Exception:
                 self.logger.exception("Unhandled exception occurred")
+
         return wrapper
 
     # Logging methods

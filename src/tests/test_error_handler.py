@@ -13,6 +13,7 @@ from error_handler import (
 
 logger = logging.getLogger(__name__)
 
+
 def test_custom_error_messages():
     # Test exception message when custom message provided
     assert str(TemplateNotFoundError("Missing file")) == "Missing file"

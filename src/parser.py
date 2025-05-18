@@ -1,13 +1,10 @@
 # Third-Party Library Imports
 import bibtexparser
+from typing import List
 from pathlib import Path
 
 # Local Imports
-from error_handler import (
-    ErrorHandler,
-    ParsingError,
-    FileNotFoundError
-)
+from error_handler import ErrorHandler, ParsingError, FileNotFoundError
 
 
 # Initialize Error Handling
@@ -41,8 +38,10 @@ class Parser:
         if self._library is None:
             raise ParsingError(f"An error occured while parsing {file_path}")
         elif len(self._library.failed_blocks) > 0:
-            error_handler.warning(f"Some blocks failed to parse. Failed blocks:\
-                                    {self._library.failed_blocks}")
+            error_handler.warning(
+                f"Some blocks failed to parse. Failed blocks:\
+                                    {self._library.failed_blocks}"
+            )
         else:
             error_handler.info("All blocks parsed successfully")
 
@@ -68,7 +67,7 @@ class Parser:
 
         return entries_dict
 
-    def get_comments_list(self) -> [str]:
+    def get_comments_list(self) -> List[str]:
         """
         Returns all comments from the BibTeX file.
 

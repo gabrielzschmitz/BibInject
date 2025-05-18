@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def sample_file(tmp_path):
-    bib_content = textwrap.dedent("""
+    bib_content = textwrap.dedent(
+        """
     @comment{
         This is my example comment.
     }
@@ -22,7 +23,8 @@ def sample_file(tmp_path):
       pages = {12--23},
       journal = {Nice Journal}
     }
-    """)
+    """
+    )
     file_path = tmp_path / "test.bib"
     file_path.write_text(bib_content)
     return str(file_path)

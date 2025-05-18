@@ -4,11 +4,8 @@ Main Application Entry Point.
 This module initializes and runs the BibInject application.
 """
 
-# Third-Party Library Imports
-
-
 # Local Imports
-from BibInject import __version__, __author__
+from __init__ import __version__, __author__
 
 
 def main():
