@@ -1,1 +1,1 @@
-bibtexparser==1.4.3
+git+https://github.com/sciunto-org/python-bibtexparser@main#egg=bibtexparser
