@@ -28,7 +28,7 @@ source "$VENV_NAME/bin/activate"
 
 # Run pytest with PYTHONPATH set
 echo -e "${TEST} Running tests in ${YELLOW}${TEST_DIR}${RESET}..."
-PYTHONPATH=src pytest -v "$TEST_DIR"
+PYTHONPATH=$(pwd) pytest -v "$TEST_DIR"
 
 # Check exit status
 if [ $? -eq 0 ]; then

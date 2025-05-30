@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 # Local Imports
-from error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
+from .error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
 
 # Initialize Error Handling
 error_handler = ErrorHandler()

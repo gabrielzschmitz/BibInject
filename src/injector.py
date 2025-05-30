@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 # Local Imports
-from error_handler import (
+from .error_handler import (
     ErrorHandler,
     TemplateNotFoundError,
     TemplateReadError,
