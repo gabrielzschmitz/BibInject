@@ -12,7 +12,7 @@ ERROR="❌"
 INFO="ℹ️"
 
 # Assign the virtual environment name and app
-VENV_NAME="src/.venv"
+VENV_NAME=".venv"
 APP_FILE="src/app.py"
 
 # Check if the virtual environment exists
