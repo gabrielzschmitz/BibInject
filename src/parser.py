@@ -11,6 +11,10 @@ error_handler = ErrorHandler()
 
 
 class Parser:
+    """
+    A BibTeX parser for extracting entries, comments, preambles, and string macros from BibTeX files.
+    """
+
     def __init__(self, expand_strings=False):
         self.expand_strings = expand_strings
         self.data = {
@@ -22,6 +26,20 @@ class Parser:
 
     @error_handler.handle
     def parse_file(self, filename):
+        """
+        Parses a BibTeX file from the filesystem.
+
+        Args:
+            filename (str): Path to the .bib file.
+
+        Returns:
+            dict: Parsed BibTeX data.
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist.
+            FileReadError: If the file isn't readable.
+            ParsingError: If the content can't be parsed properly.
+        """
         file_path = Path(filename)
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {filename}")
@@ -34,6 +52,15 @@ class Parser:
 
     @error_handler.handle
     def parse_string(self, content):
+        """
+        Parses a BibTeX string.
+
+        Args:
+            content (str): Raw BibTeX string.
+
+        Returns:
+            dict: Parsed BibTeX data structure with entries, comments, etc.
+        """
         self.data = {"entries": [], "comments": [], "preambles": [], "strings": []}
         seen_keys = {}
 
@@ -95,15 +122,19 @@ class Parser:
         return self.data
 
     def get_entries(self):
+        """Return list of parsed BibTeX entries."""
         return self.data.get("entries", [])
 
     def get_comments(self):
+        """Return list of BibTeX comments."""
         return self.data.get("comments", [])
 
     def get_preambles(self):
+        """Return list of BibTeX preambles."""
         return self.data.get("preambles", [])
 
     def get_strings(self):
+        """Return list of BibTeX string macros."""
         return self.data.get("strings", [])
 
     def get_entry_fields(self, entry):
@@ -130,6 +161,19 @@ class Parser:
         return None
 
     def _extract_brace_block(self, s, start):
+        """
+        Extract a balanced brace block from a given string.
+
+        Args:
+            s (str): The full string.
+            start (int): Position of the opening brace.
+
+        Returns:
+            tuple: (content inside the braces, position after closing brace)
+
+        Raises:
+            ParsingError: If braces are unbalanced.
+        """
         assert s[start] == "{"
         depth = 1
         i = start + 1
@@ -146,6 +190,15 @@ class Parser:
         return s[start + 1 : i - 1], i
 
     def _parse_key_value(self, text):
+        """
+        Parse a BibTeX string macro into a key-value pair.
+
+        Args:
+            text (str): String definition content.
+
+        Returns:
+            dict: Parsed key-value pair.
+        """
         parts = text.split("=", 1)
         if len(parts) == 2:
             key = parts[0].strip()
@@ -154,6 +207,16 @@ class Parser:
         return {}
 
     def _parse_entry(self, entry_type, text):
+        """
+        Parse a BibTeX entry into its components.
+
+        Args:
+            entry_type (str): Type of the BibTeX entry (e.g., article, book).
+            text (str): Raw entry content.
+
+        Returns:
+            dict: Dictionary containing entry type, citation key, and fields.
+        """
         match = re.match(r"\s*([^,]+)\s*,(.*)", text, re.DOTALL)
         if not match:
             return {"type": entry_type, "raw": text}
@@ -185,56 +248,3 @@ class Parser:
             fields_text = fields_text[field_match.end() :]
 
         return {"type": entry_type, "key": citation_key, "fields": fields}
-
-
-if __name__ == "__main__":
-    parser = Parser(expand_strings=True)
-    example = """
-    @preamble{
-      "This is a preamble that might include LaTeX commands."
-    }
-
-    @string{IEEE = "IEEE Transactions on Something"}
-
-    @comment{
-        This is my example comment.
-    }
-
-    @comment{
-        This is my example comment 2.
-    }
-
-    @ARTICLE{Cesar2013,
-      author = {Jean César},
-      title = {An amazing title},
-      year = {2013},
-      volume = {12},
-      pages = {12--23},
-      journal = {Nice Journal}
-    }
-
-    @ARTICLE{Cesar2013,
-      author = {Jean César},
-      title = {An amazing title},
-      year = {2013},
-      volume = {12},
-      pages = {12--23},
-      journal = {IEEE}
-    }
-
-    @book{alexander2008,
-      author = {Alexander, Charles K. and Sadiku, Matthew N. O.},
-      title = {Fundamentos de circuitos elétricos},
-      edition = {3},
-      location = {São Paulo, SP},
-      publisher = {McGraw-Hill},
-      year = {2008},
-      pages = {xxi, 901},
-      isbn = {9788585804977}
-    }
-    """
-
-    import json
-
-    result = parser.parse_string(example)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
