@@ -23,7 +23,7 @@ jobs:
       - name: Install mypy
         run: |
           python -m pip install --upgrade pip
-          pip install mypy
+          pip install mypy pytest types-pytest
 
       - name: Run mypy
         run: |
