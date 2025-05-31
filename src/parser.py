@@ -2,6 +2,7 @@
 import re
 import os
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 # Local Imports
 from .error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
@@ -15,9 +16,9 @@ class Parser:
     A BibTeX parser for extracting entries, comments, preambles, and string macros from BibTeX files.
     """
 
-    def __init__(self, expand_strings=False):
-        self.expand_strings = expand_strings
-        self.data = {
+    def __init__(self, expand_strings: bool = False):
+        self.expand_strings: bool = expand_strings
+        self.data: Dict[str, List[Any]] = {
             "entries": [],
             "comments": [],
             "preambles": [],
@@ -25,7 +26,7 @@ class Parser:
         }
 
     @error_handler.handle
-    def parse_file(self, filename):
+    def parse_file(self, filename: str) -> Dict[str, List[Any]]:
         """
         Parses a BibTeX file from the filesystem.
 
@@ -51,7 +52,7 @@ class Parser:
         return self.parse_string(content)
 
     @error_handler.handle
-    def parse_string(self, content):
+    def parse_string(self, content: str) -> Dict[str, List[Any]]:
         """
         Parses a BibTeX string.
 
@@ -121,46 +122,46 @@ class Parser:
         )
         return self.data
 
-    def get_entries(self):
+    def get_entries(self) -> List[Dict[str, Any]]:
         """Return list of parsed BibTeX entries."""
         return self.data.get("entries", [])
 
-    def get_comments(self):
+    def get_comments(self) -> List[str]:
         """Return list of BibTeX comments."""
         return self.data.get("comments", [])
 
-    def get_preambles(self):
+    def get_preambles(self) -> List[str]:
         """Return list of BibTeX preambles."""
         return self.data.get("preambles", [])
 
-    def get_strings(self):
+    def get_strings(self) -> List[Dict[str, str]]:
         """Return list of BibTeX string macros."""
         return self.data.get("strings", [])
 
-    def get_entry_fields(self, entry):
+    def get_entry_fields(self, entry: Any) -> Optional[Dict[str, str]]:
         """Given an entry dict, return its fields dict or None if invalid."""
         return entry.get("fields") if isinstance(entry, dict) else None
 
-    def get_entry_field(self, entry, field_name):
+    def get_entry_field(self, entry: Any, field_name: str) -> Optional[str]:
         """Return value of field_name for given entry, or None if not found."""
         fields = self.get_entry_fields(entry)
         if fields:
             return fields.get(field_name)
         return None
 
-    def get_entry_key(self, entry):
+    def get_entry_key(self, entry: Any) -> Optional[str]:
         """Return citation key of the entry, or None."""
         if isinstance(entry, dict):
             return entry.get("key")
         return None
 
-    def get_entry_type(self, entry):
+    def get_entry_type(self, entry: Any) -> Optional[str]:
         """Return type of the entry, or None."""
         if isinstance(entry, dict):
             return entry.get("type")
         return None
 
-    def _extract_brace_block(self, s, start):
+    def _extract_brace_block(self, s: str, start: int) -> Tuple[str, int]:
         """
         Extract a balanced brace block from a given string.
 
@@ -189,7 +190,7 @@ class Parser:
             )
         return s[start + 1 : i - 1], i
 
-    def _parse_key_value(self, text):
+    def _parse_key_value(self, text: str) -> Dict[str, str]:
         """
         Parse a BibTeX string macro into a key-value pair.
 
@@ -206,7 +207,7 @@ class Parser:
             return {key: value}
         return {}
 
-    def _parse_entry(self, entry_type, text):
+    def _parse_entry(self, entry_type: str, text: str) -> Dict[str, Any]:
         """
         Parse a BibTeX entry into its components.
 
