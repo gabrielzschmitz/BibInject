@@ -1,5 +1,5 @@
 import logging
-from error_handler import (
+from src.error_handler import (
     TemplateNotFoundError,
     TemplateReadError,
     DivNotFoundError,

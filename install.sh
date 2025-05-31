@@ -13,7 +13,7 @@ ERROR="❌"
 INFO="ℹ️"
 
 # Assign the virtual environment name
-VENV_NAME="src/.venv"
+VENV_NAME=".venv"
 
 # Create a virtual environment
 echo -e "${INFO} Creating virtual environment '${BLUE}$VENV_NAME${RESET}'..."

@@ -12,8 +12,8 @@ ERROR="❌"
 INFO="ℹ️"
 
 # Assign the virtual environment name and app
-VENV_NAME="src/.venv"
-APP_FILE="src/app.py"
+VENV_NAME=".venv"
+APP_FILE="src.app"
 
 # Check if the virtual environment exists
 if [ ! -d "$VENV_NAME" ]; then
@@ -27,7 +27,7 @@ source "$VENV_NAME/bin/activate"
 
 # Run the app.py script
 echo -e "${INFO} Running ${YELLOW}app.py${RESET}..."
-python "$APP_FILE"
+python -m "$APP_FILE"
 
 # Deactivate the virtual environment
 echo -e "${INFO} Deactivating the virtual environment... ${CHECKMARK}"

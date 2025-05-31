@@ -1,7 +1,7 @@
 import textwrap
 import logging
 import pytest
-from injector import Injector
+from src.injector import Injector
 
 logger = logging.getLogger(__name__)
 
