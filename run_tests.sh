@@ -15,6 +15,22 @@ TEST="🧪"
 # Settings
 VENV_NAME=".venv"
 TEST_DIR="src/tests"
+VERBOSE_FLAG=""
+TARGET_PATH="$TEST_DIR"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -v|--verbose)
+      VERBOSE_FLAG="--log-cli-level=DEBUG"
+      shift
+      ;;
+    *)
+      TARGET_PATH="$1"
+      shift
+      ;;
+  esac
+done
 
 # Check if the virtual environment exists
 if [ ! -d "$VENV_NAME" ]; then
@@ -27,8 +43,8 @@ echo -e "${INFO} Activating virtual environment '${VENV_NAME}'..."
 source "$VENV_NAME/bin/activate"
 
 # Run pytest with PYTHONPATH set
-echo -e "${TEST} Running tests in ${YELLOW}${TEST_DIR}${RESET}..."
-PYTHONPATH=$(pwd) pytest -v "$TEST_DIR"
+echo -e "${TEST} Running tests in ${YELLOW}${TARGET_PATH}${RESET}..."
+PYTHONPATH=$(pwd) pytest -v $VERBOSE_FLAG "$TARGET_PATH"
 
 # Check exit status
 if [ $? -eq 0 ]; then
