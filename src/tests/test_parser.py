@@ -28,7 +28,7 @@ def sample_bib_content():
           pages = {12--23},
           journal = {NJ}
         }
-        
+
         @ARTICLE{Cesar2013,
           author = {Duplicate entry that should be ignored},
           title = {Duplicate title},
