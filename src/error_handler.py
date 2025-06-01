@@ -27,14 +27,6 @@ class HTMLElementNotFoundError(Exception):
         super().__init__(message or default)
 
 
-class DivNotFoundError(Exception):
-    """Raised when the target <div> element is not found in the HTML content."""
-
-    def __init__(self, message: Optional[str] = None):
-        default: str = "Target <div> element was not found in the HTML."
-        super().__init__(message or default)
-
-
 class InjectionError(Exception):
     """Raised when an error occurs during the injection of BibTeX data into the HTML."""
 
@@ -126,8 +118,8 @@ class ErrorHandler:
             except (
                 TemplateNotFoundError,
                 TemplateReadError,
-                DivNotFoundError,
                 InjectionError,
+                HTMLElementNotFoundError,
                 ParsingError,
                 FileNotFoundError,
                 FileWriteError,
