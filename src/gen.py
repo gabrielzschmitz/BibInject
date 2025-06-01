@@ -82,7 +82,7 @@ class Generator:
         """
         self.data = entry
         self.template_name = template_name
-        self.type = entry["type"]
+        self.type = str(entry["type"])
 
     @error_handler.handle
     def _load_template(self) -> str:
