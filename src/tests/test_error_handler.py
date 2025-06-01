@@ -2,6 +2,7 @@ import logging
 from src.error_handler import (
     TemplateNotFoundError,
     TemplateReadError,
+    HTMLElementNotFoundError,
     DivNotFoundError,
     InjectionError,
     ParsingError,
@@ -9,6 +10,7 @@ from src.error_handler import (
     FileWriteError,
     FileReadError,
     ErrorHandler,
+    EmptyFileError,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,6 +26,10 @@ def test_custom_error_messages():
     assert str(FileNotFoundError("File missing")) == "File missing"
     assert str(FileWriteError("Write failed")) == "Write failed"
     assert str(FileReadError("Read failed")) == "Read failed"
+    assert str(EmptyFileError("Empty file")) == "Empty file"
+    assert (
+        str(HTMLElementNotFoundError("HTML element missing")) == "HTML element missing"
+    )
 
 
 def test_default_error_messages():
@@ -36,6 +42,11 @@ def test_default_error_messages():
     assert str(FileNotFoundError()) == "File not found."
     assert str(FileWriteError()) == "An error occurred while writing to the file."
     assert str(FileReadError()) == "An error occurred while reading the file."
+    assert str(EmptyFileError()) == "The file is empty and cannot be processed."
+    assert (
+        str(HTMLElementNotFoundError())
+        == "Target HTML element was not found in the HTML."
+    )
 
 
 def test_error_handler_logging_info(caplog):

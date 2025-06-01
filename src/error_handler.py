@@ -19,6 +19,14 @@ class TemplateReadError(Exception):
         super().__init__(message or default)
 
 
+class HTMLElementNotFoundError(Exception):
+    """Raised when the target HTML element is not found in the HTML content."""
+
+    def __init__(self, message: Optional[str] = None):
+        default: str = "Target HTML element was not found in the HTML."
+        super().__init__(message or default)
+
+
 class DivNotFoundError(Exception):
     """Raised when the target <div> element is not found in the HTML content."""
 
@@ -64,6 +72,14 @@ class FileReadError(Exception):
 
     def __init__(self, message: Optional[str] = None):
         default: str = "An error occurred while reading the file."
+        super().__init__(message or default)
+
+
+class EmptyFileError(Exception):
+    """Raised when the file passed is empty."""
+
+    def __init__(self, message: Optional[str] = None):
+        default: str = "The file is empty and cannot be processed."
         super().__init__(message or default)
 
 
@@ -116,6 +132,7 @@ class ErrorHandler:
                 FileNotFoundError,
                 FileWriteError,
                 FileReadError,
+                EmptyFileError,
             ) as e:
                 self.logger.error(f"{type(e).__name__}: {e}")
                 return None
