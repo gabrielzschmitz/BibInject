@@ -7,7 +7,7 @@ from .error_handler import (
     ErrorHandler,
     TemplateNotFoundError,
     TemplateReadError,
-    DivNotFoundError,
+    HTMLElementNotFoundError,
     InjectionError,
     FileWriteError,
 )
@@ -62,7 +62,7 @@ class Injector:
         )
         open_div_match = open_div_pattern.search(self.html)
         if not open_div_match:
-            raise DivNotFoundError(f"Could not find <div id='{target_id}'>")
+            raise HTMLElementNotFoundError(f"Could not find <div id='{target_id}'>")
 
         base_indent = open_div_match.group("indent")
         indent_unit = self._detect_indent_unit()
