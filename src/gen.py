@@ -131,7 +131,7 @@ class Generator:
 
         def replacer(match):
             key = match.group(1).strip()
-            value = self.data["fields"].get(key)
+            value = dict(self.data["fields"]).get(key)
             if value is None:
                 error_handler.warning(f"Missing value for placeholder '{{{{{key}}}}}'")
                 return ""
@@ -184,7 +184,3 @@ class Generator:
         """
         template_content = self._Splitter(self._load_template(), self.type).split()
         return self._render(template_content)
-
-
-if __name__ == "__main__":
-    print("yay")
