@@ -26,8 +26,8 @@ echo -e "${INFO} Activating virtual environment '${VENV_NAME}'..."
 source "$VENV_NAME/bin/activate"
 
 # Run the app.py script
-echo -e "${INFO} Running ${YELLOW}app.py${RESET}..."
-python -m "$APP_FILE"
+echo -e "${INFO} Running ${YELLOW}app.py${RESET} with arguments: $*"
+python -m "$APP_FILE" "$@"
 
 # Deactivate the virtual environment
 echo -e "${INFO} Deactivating the virtual environment... ${CHECKMARK}"
