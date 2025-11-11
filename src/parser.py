@@ -2,7 +2,7 @@
 import re
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local Imports
 from .error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
@@ -302,53 +302,49 @@ class Parser:
         entries: Optional[List[Dict[str, Any]]] = None,
         by: str = "year",
         reverse: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> Dict[str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]]:
         """
         Group entries by year and optionally by month.
-
-        Args:
-            entries (list): List of BibTeX entries. Defaults to parsed entries.
-            by (str): 'year' or 'year/month'.
-            reverse (bool): Reverse the order of groups (most recent first).
-
-        Returns:
-            dict: Nested dict structure, e.g.:
-                {
-                    "2024": {
-                        "March": [entry1, entry2],
-                        "January": [entry3]
-                    },
-                    "2023": [entry4, entry5]
-                }
         """
         if entries is None:
             entries = self.get_entries()
-
-        # Ensure entries are ordered first
+    
         ordered = self.order_entries(entries, reverse=reverse)
-
-        grouped = {}
+    
+        grouped: Dict[str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]] = {}
+    
         month_names = [
             "", "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "July", "August", "September", "October", "November", "December",
         ]
-
+    
         for entry in ordered:
             fields = entry.get("fields", {})
             year = fields.get("year", "Unknown")
             month_val = fields.get("month", "").strip().lower()
-            month_num = None
+    
+            # Normalize month name
+            month = None
             for i, name in enumerate(month_names):
                 if name.lower().startswith(month_val[:3]):
-                    month_num = i
+                    month = name
                     break
-            month = month_names[month_num] if month_num else None
-
+    
             if by == "year/month" and month:
-                grouped.setdefault(year, {}).setdefault(month, []).append(entry)
+                # ensure dict type for year
+                if year not in grouped or not isinstance(grouped[year], dict):
+                    grouped[year] = {}
+                year_dict = grouped[year]
+                assert isinstance(year_dict, dict)
+                year_dict.setdefault(month, []).append(entry)
             else:
-                grouped.setdefault(year, []).append(entry)
-
+                # ensure list type for year
+                if year not in grouped or not isinstance(grouped[year], list):
+                    grouped[year] = []
+                year_list = grouped[year]
+                assert isinstance(year_list, list)
+                year_list.append(entry)
+    
         return grouped
 
 
