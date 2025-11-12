@@ -11,26 +11,49 @@ CHECKMARK="✅"
 ERROR="❌"
 INFO="ℹ️"
 
-# Assign the virtual environment name and app
+# Virtual environment and CLI module
 VENV_NAME=".venv"
-APP_FILE="src.app"
+APP_MODULE="src.app"
 
-# Check if the virtual environment exists
+# --- Debug Mode (via global environment variable) ---
+# Usage: DEBUG=TRUE ./run.sh ...
+if [[ "$DEBUG" == "TRUE" || "$DEBUG" == "true" || "$DEBUG" == "1" ]]; then
+  DEBUG_MODE=true
+else
+  DEBUG_MODE=false
+fi
+
+# Helper for conditional info messages
+log_info() {
+  if $DEBUG_MODE; then
+    echo -e "${INFO} $1"
+  fi
+}
+
+# --- Virtual environment check ---
 if [ ! -d "$VENV_NAME" ]; then
   echo -e "${RED}${ERROR} Virtual environment '${VENV_NAME}' not found.${RESET}"
   exit 1
 fi
 
-# Activate the virtual environment
-echo -e "${INFO} Activating virtual environment '${VENV_NAME}'..."
+log_info "Activating virtual environment '${VENV_NAME}'..."
 source "$VENV_NAME/bin/activate"
 
-# Run the app.py script
-echo -e "${INFO} Running ${YELLOW}app.py${RESET} with arguments: $*"
-python -m "$APP_FILE" "$@"
+# --- Argument check ---
+if [ $# -eq 0 ]; then
+  echo -e "${YELLOW}${INFO} No arguments supplied.${RESET}"
+  echo "Example usage:"
+  echo "  ./run.sh --input refs.bib --refspec templates/apa.html --template index.html --target-id references output.html"
+  deactivate
+  exit 1
+fi
 
-# Deactivate the virtual environment
-echo -e "${INFO} Deactivating the virtual environment... ${CHECKMARK}"
+# --- Run Python CLI ---
+log_info "Running ${YELLOW}${APP_MODULE}${RESET} with arguments: $*"
+python -m "$APP_MODULE" "$@"
+
+# --- Cleanup ---
+log_info "Deactivating the virtual environment... ${CHECKMARK}"
 deactivate
 
-echo -e "${GREEN}${CHECKMARK} Virtual environment deactivated.${RESET}"
+echo -e "${GREEN}${CHECKMARK} Done.${RESET}"

@@ -1,0 +1,80 @@
+/* Global style reset and font setup */
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #f5f7fa;
+  color: #222;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Header */
+h1 {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 2rem;
+  color: #222;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Main publications container */
+#my-publications {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Each publication entry */
+#my-publications p {
+  background: #fafafa;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  border-left: 4px solid #4a90e2;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+/* Hover effect for publications */
+#my-publications p:hover {
+  background: #f0f7ff;
+  transform: translateX(3px);
+}
+
+/* Italics for titles */
+em {
+  color: #2a5bd7;
+  font-style: italic;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin: 3rem 0 1.5rem 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+/* Subtle fade-in animation */
+body {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  #my-publications {
+    padding: 1.2rem;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+}
