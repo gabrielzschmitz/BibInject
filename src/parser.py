@@ -2,7 +2,7 @@
 import re
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local Imports
 from .error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
@@ -249,3 +249,127 @@ class Parser:
             fields_text = fields_text[field_match.end() :]
 
         return {"type": entry_type, "key": citation_key, "fields": fields}
+
+
+    @error_handler.handle
+    def order_entries(
+        self,
+        entries: Optional[List[Dict[str, Any]]] = None,
+        reverse: bool = False,
+    ) -> List[Dict[str, Any]]:
+        """
+        Order entries by year (and month if present).
+    
+        Args:
+            entries (list): List of BibTeX entries. Defaults to parsed entries.
+            reverse (bool): If True, order descending (most recent first).
+    
+        Returns:
+            list: Ordered list of entries.
+        """
+        if entries is None:
+            entries = self.get_entries()
+    
+        def sort_key(entry):
+            fields = entry.get("fields", {})
+            year = int(fields.get("year", 0)) if fields.get("year", "").isdigit() else 0
+    
+            # Month normalization: convert strings or abbreviations
+            month_map = {
+                "jan": 1, "january": 1,
+                "feb": 2, "february": 2,
+                "mar": 3, "march": 3,
+                "apr": 4, "april": 4,
+                "may": 5,
+                "jun": 6, "june": 6,
+                "jul": 7, "july": 7,
+                "aug": 8, "august": 8,
+                "sep": 9, "september": 9,
+                "oct": 10, "october": 10,
+                "nov": 11, "november": 11,
+                "dec": 12, "december": 12,
+            }
+            month_raw = fields.get("month", "").strip().lower()
+            month = month_map.get(month_raw, 0)
+            return (year, month)
+    
+        return sorted(entries, key=sort_key, reverse=reverse)
+
+
+    @error_handler.handle
+    def group_entries(
+        self,
+        entries: Optional[List[Dict[str, Any]]] = None,
+        by: str = "year",
+        reverse: bool = True,
+    ) -> Dict[str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]]:
+        """
+        Group entries by year and optionally by month.
+        """
+        if entries is None:
+            entries = self.get_entries()
+    
+        ordered = self.order_entries(entries, reverse=reverse)
+    
+        grouped: Dict[str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]] = {}
+    
+        month_names = [
+            "", "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December",
+        ]
+    
+        for entry in ordered:
+            fields = entry.get("fields", {})
+            year = fields.get("year", "Unknown")
+            month_val = fields.get("month", "").strip().lower()
+    
+            # Normalize month name
+            month = None
+            for i, name in enumerate(month_names):
+                if name.lower().startswith(month_val[:3]):
+                    month = name
+                    break
+    
+            if by == "year/month" and month:
+                # ensure dict type for year
+                if year not in grouped or not isinstance(grouped[year], dict):
+                    grouped[year] = {}
+                year_dict = grouped[year]
+                assert isinstance(year_dict, dict)
+                year_dict.setdefault(month, []).append(entry)
+            else:
+                # ensure list type for year
+                if year not in grouped or not isinstance(grouped[year], list):
+                    grouped[year] = []
+                year_list = grouped[year]
+                assert isinstance(year_list, list)
+                year_list.append(entry)
+    
+        return grouped
+
+
+    @error_handler.handle
+    def group_entries_to_html(self, grouped: Dict[str, Any]) -> str:
+        """
+        Convert grouped entries (from group_entries) to HTML structure.
+        """
+        html = []
+        for year, data in grouped.items():
+            html.append(f"<h2>{year}</h2>")
+            if isinstance(data, dict):  # grouped by month
+                for month, entries in data.items():
+                    html.append(f"  <h3>{month}</h3>")
+                    html.append("  <ul>")
+                    for e in entries:
+                        title = e["fields"].get("title", "Untitled")
+                        author = e["fields"].get("author", "")
+                        html.append(f"    <li>{author}. <em>{title}</em></li>")
+                    html.append("  </ul>")
+            else:  # only year grouping
+                html.append("  <ul>")
+                for e in data:
+                    title = e["fields"].get("title", "Untitled")
+                    author = e["fields"].get("author", "")
+                    html.append(f"    <li>{author}. <em>{title}</em></li>")
+                html.append("  </ul>")
+        return "\n".join(html)

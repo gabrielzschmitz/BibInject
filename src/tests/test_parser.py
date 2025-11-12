@@ -153,3 +153,79 @@ def test_get_entry_helpers_with_invalid_input(caplog):
 
     logger.info("Invalid input tests passed")
     assert any("Invalid input tests passed" in message for message in caplog.messages)
+
+def test_group_and_order_entries(caplog):
+    caplog.set_level(logging.INFO)
+    parser = Parser()
+
+    # Simulated parsed entries
+    entries = [
+        {
+            "type": "article",
+            "key": "Doe2023a",
+            "fields": {
+                "author": "John Doe",
+                "title": "Earlier Paper",
+                "year": "2023",
+                "month": "January",
+            },
+        },
+        {
+            "type": "article",
+            "key": "Doe2024b",
+            "fields": {
+                "author": "John Doe",
+                "title": "Most Recent Paper",
+                "year": "2024",
+                "month": "March",
+            },
+        },
+        {
+            "type": "article",
+            "key": "Doe2024a",
+            "fields": {
+                "author": "John Doe",
+                "title": "Second Paper",
+                "year": "2024",
+                "month": "January",
+            },
+        },
+        {
+            "type": "article",
+            "key": "Smith2022",
+            "fields": {
+                "author": "Alice Smith",
+                "title": "Oldest Paper",
+                "year": "2022",
+            },
+        },
+    ]
+
+    # ---- ORDER TEST ----
+    ordered = parser.order_entries(entries, reverse=True)
+    logger.info(f"Ordered entries: {[e['fields']['title'] for e in ordered]}")
+
+    assert ordered[0]["fields"]["title"] == "Most Recent Paper"
+    assert ordered[-1]["fields"]["title"] == "Oldest Paper"
+
+    # ---- GROUP TEST (year/month) ----
+    grouped = parser.group_entries(entries, by="year/month", reverse=True)
+    logger.info(f"Grouped keys: {list(grouped.keys())}")
+    logger.info(f"2024 months: {list(grouped['2024'].keys())}")
+
+    assert list(grouped.keys()) == ["2024", "2023", "2022"]
+    assert "March" in grouped["2024"]
+    assert "January" in grouped["2024"]
+    assert grouped["2024"]["March"][0]["fields"]["title"] == "Most Recent Paper"
+
+    # ---- HTML RENDER TEST (optional) ----
+    html = parser.group_entries_to_html(grouped)
+    logger.info(f"Generated HTML:\n{html}")
+
+    assert "<h2>2024</h2>" in html
+    assert "<h3>March</h3>" in html
+    assert "Most Recent Paper" in html
+
+    # ---- Logging Assertions ----
+    assert any("Ordered entries" in m for m in caplog.messages)
+    assert any("Grouped keys" in m for m in caplog.messages)
