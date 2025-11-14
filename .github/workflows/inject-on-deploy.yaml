@@ -1,0 +1,42 @@
+name: Type Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  mypy:
+    name: Injection Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Setup BibInject
+        run: |
+         ./install.sh 
+
+
+      - name: Run BibInject
+        run: |
+          DEBUG=TRUE ./run.sh \
+            --input templates/refsample.bib \
+            --refspec apa.html \
+            --template templates/sample.html \
+            --target-id my-publications \
+            --order desc \
+            --group year \
+            output.html
+
+      - name: Show resulting page
+        run: |
+          cat output.html
+
