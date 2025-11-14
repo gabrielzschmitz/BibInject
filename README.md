@@ -113,7 +113,7 @@ integrate BibInjection to your website deploy. Just make sure to run BibInject
 before deploying your pages.
 
 ```yaml
-name: Type Check
+name: Injection Action
 
 on:
   push:
@@ -122,7 +122,7 @@ on:
     branches: [ main ]
 
 jobs:
-  mypy:
+  bibinject:
     name: Injection Test
     runs-on: ubuntu-latest
 

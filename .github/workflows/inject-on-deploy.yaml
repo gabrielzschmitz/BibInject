@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  mypy:
+  bibinject:
     name: Injection Test
     runs-on: ubuntu-latest
 
