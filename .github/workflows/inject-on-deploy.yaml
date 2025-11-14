@@ -24,7 +24,6 @@ jobs:
         run: |
          ./install.sh 
 
-
       - name: Run BibInject
         run: |
           DEBUG=TRUE ./run.sh \
@@ -39,4 +38,3 @@ jobs:
       - name: Show resulting page
         run: |
           cat output.html
-
