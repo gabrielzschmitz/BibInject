@@ -105,6 +105,69 @@ This allows uploading `.bib` files and downloading the updated HTML directly
 from your browser.
 
 ---
+    
+## 🔄 Github Action
+ 
+In `.github/workflow/inject-on-deploy.yaml` you can find a example on how to 
+integrate BibInjection to your website deploy. Just make sure to run BibInject
+before deploying your pages.
+
+```yaml
+name: Type Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  mypy:
+    name: Injection Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Setup BibInject
+        run: |
+         ./install.sh
+
+      - name: Run BibInject
+        run: |
+          DEBUG=TRUE ./run.sh \
+            --input templates/refsample.bib \
+            --refspec apa.html \
+            --template templates/sample.html \
+            --target-id my-publications \
+            --order desc \
+            --group year \
+            output.html
+            
+      - name: Show resulting page
+        run: |
+          cat output.html
+
+#  Deploy your page after BibInject
+#  deploy:
+#    environment:
+#      name: github-pages
+#      url: ${{ steps.deployment.outputs.page_url }}
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - name: Deploy to GitHub Pages
+#        id: deployment
+#        uses: actions/deploy-pages@v4
+```
+
+---
 
 ## 📄 License
 
