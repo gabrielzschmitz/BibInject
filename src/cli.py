@@ -26,8 +26,8 @@ def parse_arguments():
         help="Path or name of the HTML reference specification template.",
     )
     parser.add_argument(
-        "--template",
-        help="Target HTML template file into which references are injected.",
+        "--html",
+        help="Target HTML file into which references are injected.",
     )
     parser.add_argument(
         "--target-id",
@@ -64,7 +64,7 @@ def run_cli():
         return run_web()
 
     # ---- Load template HTML ----
-    with open(args.template, "r", encoding="utf-8") as f:
+    with open(args.html, "r", encoding="utf-8") as f:
         html_text = f.read()
 
     # ---- Load BibTeX file ----
