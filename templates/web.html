@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>BibInject Web Interface</title>
+  </head>
+  <body>
+    <h1>BibInject Web Interface</h1>
+
+    <form action="/inject" method="post" enctype="multipart/form-data">
+      <h3>1. Input HTML</h3>
+
+      <label>Upload HTML file:</label>
+      <br />
+      <input type="file" name="htmlfile" />
+      <br /><br />
+
+      <label>Or paste HTML content:</label>
+      <br />
+      <textarea name="htmltext" rows="10" cols="80"></textarea>
+      <br /><br />
+
+      <h3>2. BibTeX</h3>
+
+      <label>Upload .bib file:</label>
+      <br />
+      <input type="file" name="bibfile" />
+      <br /><br />
+
+      <label>Or paste BibTeX content:</label>
+      <br />
+      <textarea name="htmltext" rows="10" cols="80"></textarea>
+      <br /><br />
+
+      <h3>3. Reference Style</h3>
+
+      <label for="style">Select style:</label><br />
+      <select id="style" name="style">
+        {% for style in data.styles %}
+        <option value="{{ style }}">{{ style }}</option>
+        {% endfor %}
+      </select>
+
+      <h3>4. Order</h3>
+
+      <label>Order entries:</label>
+      <br />
+      <select name="order">
+        <option value="">none</option>
+        {% for opt in data.order_options %}
+        <option value="{{ opt }}">{{ opt }}</option>
+        {% endfor %}
+      </select>
+      <br /><br />
+
+      <h3>5. Grouping</h3>
+
+      <label>Group entries by (optional):</label>
+      <br />
+      <select name="group">
+        <option value="">none</option>
+        {% for opt in data.group_options %}
+        <option value="{{ opt }}">{{ opt }}</option>
+        {% endfor %}
+      </select>
+      <br /><br />
+
+      <h3>6. Target HTML ID</h3>
+
+      <label>ID of element to inject into:</label>
+      <br />
+      <input type="text" name="target_id" />
+      <br /><br />
+
+      <button type="submit">Inject References</button>
+    </form>
+
+    <hr />
+
+    <h3>Output</h3>
+    <textarea rows="20" cols="100">
+      {{ output }}
+    </textarea>
+  </body>
+</html>
