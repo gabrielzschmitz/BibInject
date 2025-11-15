@@ -77,6 +77,13 @@
 
     <hr />
 
+    {% if output %}
+    <form action="/download" method="post">
+      <textarea name="output" style="display:none;">{{ output }}</textarea>
+      <button type="submit">Download Output HTML</button>
+    </form>
+    {% endif %}
+
     <h3>Output</h3>
     <textarea rows="20" cols="100">
       {{ output }}
