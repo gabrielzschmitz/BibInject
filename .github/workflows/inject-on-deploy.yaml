@@ -22,14 +22,14 @@ jobs:
 
       - name: Setup BibInject
         run: |
-         ./install.sh 
+         ./setup.sh 
 
       - name: Run BibInject
         run: |
-          DEBUG=TRUE ./run.sh \
+          DEBUG=TRUE ./bibinject.sh \
             --input templates/refsample.bib \
-            --refspec apa.html \
-            --template templates/sample.html \
+            --refspec apa \
+            --html templates/sample.html \
             --target-id my-publications \
             --order desc \
             --group year \

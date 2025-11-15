@@ -1,8 +1,11 @@
 # Third-Party Library Imports
 import re
+from typing import Optional
 from pathlib import Path
 
 # Local Imports
+from .parser import Parser 
+from .gen import Generator
 from .error_handler import (
     ErrorHandler,
     TemplateNotFoundError,
@@ -22,17 +25,33 @@ class Injector:
     A utility class for injecting HTML snippets into a specific <div> by ID within an HTML template file.
     """
 
-    def __init__(self, template_path: str):
-        self.template_path = Path(template_path)
+    def __init__(self, template: str, *, is_path: bool = True):
+        """
+        template:
+            - if is_path=True → treat as filesystem path
+            - if is_path=False → treat as raw HTML text (already loaded)
+        """
+        self.template_path: Optional[Path] = None
+        self.is_path = is_path
 
-        if not self.template_path.exists():
-            raise TemplateNotFoundError(f"Template not found: {template_path}")
+        if is_path:
+            self.template_path = Path(template)
 
-        self.html = self._read_template()
+            if not self.template_path.exists():
+                raise TemplateNotFoundError(f"Template not found: {template}")
 
-        error_handler.info(f"Loaded template from '{template_path}'")
+            self.html = self._read_template()
+            error_handler.info(f"Loaded template from '{template}'")
+
+        else:
+            if not template.strip():
+                raise TemplateReadError("Provided template HTML is empty.")
+
+            self.html = template
+            error_handler.info("Loaded template from string input.")
 
     def _read_template(self) -> str:
+        assert self.template_path is not None
         content = self.template_path.read_text(encoding="utf-8")
         if not content:
             raise TemplateReadError(
@@ -57,10 +76,16 @@ class Injector:
             ValueError: If the target <div id="{target_id}"> is not found.
             OSError: If there is an issue reading the file.
         """
+        # Accepts id="x" or id='x'
+        id_attr = rf'id=["\']{target_id}["\']'
+
+        # Match the opening div, regardless of quotes
         open_div_pattern = re.compile(
-            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*\n', re.MULTILINE
+            rf'^(?P<indent>[ \t]*)<div\s+[^>]*{id_attr}[^>]*>',
+            re.MULTILINE,
         )
         open_div_match = open_div_pattern.search(self.html)
+
         if not open_div_match:
             raise HTMLElementNotFoundError(f"Could not find <div id='{target_id}'>")
 
@@ -72,21 +97,37 @@ class Injector:
             f"{base_indent}{indent_unit}{line}" for line in inject_lines
         )
 
+        # Full block matcher: handles:
+        #   <div ...> ... </div>
+        #   <div ...></div>
+        #   <div ...>   </div>
         full_div_pattern = re.compile(
-            rf'(^[ \t]*<div\s+id="{target_id}"[^>]*>\s*\n)'
-            rf"(.*?)"
-            rf"(^[ \t]*</div>)",
-            re.DOTALL | re.MULTILINE,
+            rf'(?P<open><div\s+[^>]*{id_attr}[^>]*>)'
+            rf'(?P<inner>.*?)'
+            rf'(?P<close></div>)',
+            re.DOTALL
         )
 
-        if not full_div_pattern.search(self.html):
+        match = full_div_pattern.search(self.html)
+        if not match:
             raise InjectionError(
                 f"Full <div id='{target_id}'> block not found for injection."
             )
 
-        result = full_div_pattern.sub(
-            lambda match: f"{match.group(1)}{indented_html}\n{match.group(3)}",
-            self.html,
+        open_tag = match.group("open")
+        close_tag = match.group("close")
+
+        # If one-liner (<div id="x"></div>), add newline/indentation
+        if match.group("inner").strip() == "":
+            new_inner = f"\n{indented_html}\n{base_indent}"
+        else:
+            # Multi-line div
+            new_inner = f"\n{indented_html}\n{base_indent}"
+
+        result = (
+            self.html[:match.start()] +
+            f"{open_tag}{new_inner}{close_tag}" +
+            self.html[match.end():]
         )
 
         error_handler.info(f"HTML successfully injected into <div id='{target_id}'>")
@@ -121,7 +162,7 @@ class Injector:
             raise FileWriteError(
                 f"Output path '{output_path}' exists but is not a file."
             )
-
+        
         written = path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to '{output_path}'")
@@ -144,8 +185,54 @@ class Injector:
         """
         result = self.inject_html(html_to_inject, target_id)
 
+        assert self.template_path is not None
         written = self.template_path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to template '{self.template_path}'")
 
         error_handler.info(f"Replaced original file '{self.template_path}'")
+
+
+    def run_injection_pipeline(html_text, bib_text, style, order, group, target_id):
+        """Runs the BibInject pipeline using form or CLI values and returns final HTML."""
+    
+        # ---- 1. Parse BibTeX ----
+        parser = Parser(expand_strings=True)
+        data = parser.parse_string(bib_text)
+        entries = data.get("entries", [])
+        if not entries:
+            return "Error: No valid BibTeX entries found."
+    
+        # Step 2: Order entries (reverse=True for desc)
+        reverse_order = order == "desc"
+        entries = parser.order_entries(entries, reverse=reverse_order)
+
+        # Step 3: Group entries if requested
+        grouped_entries = None
+        if group:
+            grouped_entries = parser.group_entries(entries, by=group)
+        else:
+            grouped_entries = {"All": entries}
+
+        # Step 4: Generate HTML for each group
+        generated_blocks = []
+        for group_name, group_items in grouped_entries.items():
+            group_html = []
+            for entry in group_items:
+                html = Generator(entry, style).generate_html()
+                group_html.append(html)
+        
+            # Optionally add a header per group
+            if group:
+                group_header = f"<h2>{group_name}</h2>"
+                generated_blocks.append(group_header + "\n" + "\n\n".join(group_html))
+            else:
+                generated_blocks.append("\n\n".join(group_html))
+        
+        combined_html = "\n\n".join(generated_blocks)
+    
+        # ---- 5. Inject into the provided HTML ----
+        injector = Injector(html_text, is_path=False)
+        final_html = injector.inject_html(combined_html, target_id)
+    
+        return final_html

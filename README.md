@@ -9,8 +9,8 @@ valid, styled HTML references. It supports injecting these references directly
 into existing HTML files at predefined targets.
 
 Built with simplicity in mind, BibInject helps you keep your bibliography
-organized and presentation-ready without the overhead of complex pipelines. It's
-perfect for blogs, project pages, or academic sites that need lightweight
+organized and presentation-ready without the overhead of complex pipelines.
+It's perfect for blogs, project pages, or academic sites that need lightweight
 citation integration without relying on JavaScript-based renderers or external
 services.
 
@@ -20,36 +20,12 @@ Includes:
 
 ---
 
-## 📦 Project Structure
-
-```
-
-bibinject/
-├── src/
-│   └── bibinject/
-│       ├── requirements.txt # App dependencies
-│       ├── app.py           # Main app entry
-│       ├── cli.py           # Command-line interface
-│       ├── inject.py        # HTML injection logic
-│       ├── parser.py        # BibTeX parsing
-│       ├── gen.py           # HTML generation
-│       └── webapp.py        # Flask interface
-├── static/      # Logos, CSS, icons, etc.
-├── templates/   # Jinja2 HTML templates
-├── setup.sh
-├── bibinject.sh
-├── LICENSE
-└── README.md
-
-```
-
----
-
-## 🛠 Prerequisites
+## 🛠️ Prerequisites
 
 - [Python 3.0+](https://www.python.org/)
 - [pip](https://pip.pypa.io/en/stable/)
 - [virtualenv](https://virtualenv.pypa.io/)
+- [Flask](https://flask.palletsprojects.com/en/stable/)
 
 ---
 
@@ -75,21 +51,44 @@ cd BibInject
 Convert a `.bib` file and inject the result into an HTML element:
 
 ```sh
-./bibinject.sh --input="input.bib" --target-id="references" target.html
+./bibinject.sh              \
+    --input input.bib       \
+    --refspec apa           \
+    --html target.html      \
+    --target-id references  \
+    --order desc            \
+    --group year            \
+    output.html
 ```
 
 Options:
 
-* `--input=<file>`: Input BibTeX file.
-* `--target-id=<id>`: Inject into an element by ID.
-* `--target-class=<class>`: Inject into an element by class.
-* `--output=<file>`: Output to a new HTML file instead of replacing.
+* `--input=<file>`:
+  Path to the BibTeX (`.bib`) file containing the reference entries to be
+processed.
 
-Example:
+* `--refspec=<name>`:
+  Reference formatting style (e.g., `apa`, `abnt`). Determines how the
+citations will be rendered.
 
-```sh
-./bibinject.sh mypubs.bib --output="index.html"
-```
+* `--html=<file>`:
+  Path to the HTML file into which the generated reference list will be
+injected.
+
+* `--target-id=<id>`:
+  The `id` attribute of the `<div>` in the HTML file where the references
+should be inserted.
+
+* `--order=<asc|desc>`:
+  Sorting order for the references (ascending or descending). Usually based on
+year.
+
+* `--group=<field>`:
+  Group the output by a BibTeX field (e.g., `year`, `author`). Groups are
+rendered as section headers.
+
+* `<output>` (positional argument):
+  Output HTML file to write, containing the injected reference list.
 
 ---
 
@@ -101,16 +100,24 @@ Start a local web server:
 ./bibinject.sh --web
 ```
 
-This allows uploading `.bib` files and downloading the updated HTML directly
-from your browser.
+This launches a browser-friendly interface where you can upload `.bib` files,
+preview the injected output, and download the updated HTML at:
+
+`http://127.0.0.1:6969`
+
+If you prefer not to run the app locally or install anything, you can use the
+hosted version of **BibInject** at:
+
+**[https://bibinject.vercel.app](https://bibinject.vercel.app)**
 
 ---
-    
-## 🔄 Github Action
- 
-In `.github/workflow/inject-on-deploy.yaml` you can find a example on how to 
-integrate BibInjection to your website deploy. Just make sure to run BibInject
-before deploying your pages.
+
+## 🔄 GitHub Action Integration
+
+You can automate BibInject as part of your deployment workflow. An example is
+provided in `.github/workflow/inject-on-deploy.yaml`, showing how to run
+BibInject before publishing your website. This ensures your citation list is
+always regenerated and up-to-date on every deploy.
 
 ```yaml
 name: Injection Action
@@ -135,39 +142,36 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Setup BibInject
+      - name: Install BibInject
         run: |
-         ./install.sh
+          ./install.sh
 
       - name: Run BibInject
         run: |
-          DEBUG=TRUE ./run.sh \
+          DEBUG=TRUE ./bibinject.sh \
             --input templates/refsample.bib \
-            --refspec apa.html \
-            --template templates/sample.html \
+            --refspec apa \
+            --html templates/sample.html \
             --target-id my-publications \
             --order desc \
             --group year \
             output.html
-            
+
       - name: Show resulting page
-        run: |
-          cat output.html
+        run: cat output.html
 
-#  Deploy your page after BibInject
-#  deploy:
-#    environment:
-#      name: github-pages
-#      url: ${{ steps.deployment.outputs.page_url }}
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      - name: Deploy to GitHub Pages
-#        id: deployment
-#        uses: actions/deploy-pages@v4
+# Deploy your page only after BibInject has completed.
+# deploy:
+#   environment:
+#     name: github-pages
+#     url: ${{ steps.deployment.outputs.page_url }}
+#   runs-on: ubuntu-latest
+#   needs: bibinject
+#   steps:
+#     - name: Deploy to GitHub Pages
+#       id: deployment
+#       uses: actions/deploy-pages@v4
 ```
-
----
 
 ## 📄 License
 

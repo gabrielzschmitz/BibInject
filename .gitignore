@@ -60,3 +60,4 @@ templates_c/
 # Local user settings
 *.sublime-workspace
 *.sublime-project
+.vercel

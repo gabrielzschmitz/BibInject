@@ -97,7 +97,12 @@ class Generator:
             FileReadError: If the file exists but is not readable.
             EmptyFileError: If the file exists but is empty.
         """
-        template_path = Path("templates") / self.template_name
+        template_filename = (
+            self.template_name
+            if self.template_name.endswith(".html")
+            else self.template_name + ".html"
+        )
+        template_path = Path("refspec") / template_filename
         if not template_path.exists():
             raise FileNotFoundError(f"File not found: {template_path}")
 

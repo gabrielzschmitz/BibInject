@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>BibInject Web Interface</title>
+    <link rel="stylesheet" href="static/web.css" />
+    <link
+      rel="shortcut icon"
+      href="/static/icons/logov1.1.png"
+      type="image/x-icon"
+    />
+  </head>
+
+  <body>
+    <h1>BibInject</h1>
+
+    <form
+      action="/inject"
+      method="post"
+      enctype="multipart/form-data"
+      class="container"
+    >
+      <div class="input-group">
+        <div class="section-title">
+          <span class="section-number">1</span>
+          Input Files
+        </div>
+
+        <div class="file-container">
+          <div class="file-section">
+            <label>Upload HTML file:</label>
+            <input type="file" name="htmlfile" />
+            <label>Or paste HTML content:</label>
+            <textarea name="htmltext" rows="6"></textarea>
+          </div>
+
+          <div class="file-section">
+            <label>Upload .bib file:</label>
+            <input type="file" name="bibfile" />
+            <label>Or paste BibTeX content:</label>
+            <textarea name="bibtext" rows="6"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="section-title">
+          <span class="section-number">2</span>
+          Target HTML ID
+        </div>
+
+        <div class="select-wrapper">
+          <label>ID of HTML element to inject into:</label>
+          <input type="text" name="target_id" placeholder="e.g., references" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="section-title">
+          <span class="section-number">3</span>
+          Set Parameters
+        </div>
+        <div class="list-container">
+          <div class="select-wrapper">
+            <label for="style">Select style:</label>
+            <select id="style" name="style">
+              {% for style in data.styles %}
+              <option value="{{ style }}">{{ style }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="select-wrapper">
+            <label>Order entries:</label>
+            <select name="order">
+              <option value="">none</option>
+              {% for opt in data.order_options %}
+              <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="select-wrapper">
+            <label>Group entries by:</label>
+            <select name="group">
+              <option value="">none</option>
+              {% for opt in data.group_options %}
+              <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="form-btn"
+        formaction="/inject#output-section"
+      >
+        Inject References
+      </button>
+    </form>
+    {% if output %}
+    <hr />
+    <div class="output-section" id="output-section">
+      <div>
+        <form action="/download" method="post">
+          <textarea name="output" style="display: none">{{ output }}</textarea>
+          <button type="submit" class="output-btn">DOWNLOAD</button>
+        </form>
+      </div>
+      <iframe id="viewer-frame" src="/preview"></iframe>
+    </div>
+    {% endif %}
+  </body>
+</html>

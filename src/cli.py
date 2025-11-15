@@ -1,8 +1,7 @@
 import argparse
-from .parser import Parser
-from .gen import Generator
-from .injector import Injector
 from .error_handler import ErrorHandler
+from .injector import Injector
+from .web import run_web
 
 # Initialize error handler
 error_handler = ErrorHandler()
@@ -12,36 +11,46 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Inject BibTeX references into an HTML template."
     )
-    parser.add_argument("--input", required=True, help="Path to the BibTeX input file (.bib).")
+
+    # --- WEB MODE (optional, triggers early exit) ---
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Start the BibInject web interface.",
+    )
+
+    # --- CLI MODE ARGS (no longer required=True here) ---
+    parser.add_argument("--input", help="Path to the BibTeX input file (.bib).")
     parser.add_argument(
         "--refspec",
-        required=True,
         help="Path or name of the HTML reference specification template.",
     )
     parser.add_argument(
-        "--template",
-        required=True,
-        help="Target HTML template file into which references are injected.",
+        "--html",
+        help="Target HTML file into which references are injected.",
     )
     parser.add_argument(
         "--target-id",
-        required=True,
         help="The ID of the <div> or element where references should be injected.",
     )
     parser.add_argument(
         "--order",
         choices=["asc", "desc"],
         default="desc",
-        help="Order of entries by year/month. Use 'asc' for oldest first or 'desc' for most recent first (default).",
+        help="Order of entries by year/month.",
     )
     parser.add_argument(
         "--group",
         help="Optional field name to group entries by year/month.",
     )
+
+    # Positional output (optional in web mode)
     parser.add_argument(
         "output",
+        nargs="?",
         help="Output HTML file path where the final injected HTML will be written.",
     )
+
     return parser.parse_args()
 
 
@@ -49,42 +58,36 @@ def parse_arguments():
 def run_cli():
     args = parse_arguments()
 
-    # Step 1: Parse BibTeX
-    parser = Parser(expand_strings=True)
-    data = parser.parse_file(args.input)
-    entries = data.get("entries", [])
-    if not entries:
-        error_handler.error("No valid BibTeX entries found.")
+    # If --web is set, ignore all other arguments and start the web server
+    if args.web:
+        print("Starting BibInject web interface on http://127.0.0.1:6969 ...")
+        return run_web()
+
+    # ---- Load template HTML ----
+    with open(args.html, "r", encoding="utf-8") as f:
+        html_text = f.read()
+
+    # ---- Load BibTeX file ----
+    with open(args.input, "r", encoding="utf-8") as f:
+        bib_text = f.read()
+
+    # ---- Run the unified pipeline ----
+    output_html = Injector.run_injection_pipeline(
+        html_text=html_text,
+        bib_text=bib_text,
+        style=args.refspec,
+        order=args.order,
+        group=args.group,
+        target_id=args.target_id,
+    )
+
+    # If pipeline returned an error, show it
+    if not isinstance(output_html, str):
+        print("Error: HTML generation failed.")
         return
 
-    # Step 2: Order entries (reverse=True for desc)
-    reverse_order = args.order == "desc"
-    entries = parser.order_entries(entries, reverse=reverse_order)
+    # ---- Save output ----
+    with open(args.output, "w", encoding="utf-8") as f:
+        f.write(output_html)
 
-    # Step 3: Group entries if requested
-    grouped_entries = None
-    if args.group:
-        grouped_entries = parser.group_entries(entries, by=args.group)
-    else:
-        grouped_entries = {"All": entries}
-
-    # Step 4: Generate HTML for each group
-    generated_blocks = []
-    for group_name, group_items in grouped_entries.items():
-        group_html = []
-        for entry in group_items:
-            html = Generator(entry, args.refspec).generate_html()
-            group_html.append(html)
-    
-        # Optionally add a header per group
-        if args.group:
-            group_header = f"<h2>{group_name}</h2>"
-            generated_blocks.append(group_header + "\n" + "\n\n".join(group_html))
-        else:
-            generated_blocks.append("\n\n".join(group_html))
-    
-    combined_html = "\n\n".join(generated_blocks)
-    
-    # Step 5: Inject HTML into target template
-    injector = Injector(args.template)
-    injector.save_injected_html_as(combined_html, args.target_id, args.output)
+    print(f"Injected HTML saved to {args.output}")
