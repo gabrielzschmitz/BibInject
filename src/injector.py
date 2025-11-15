@@ -76,11 +76,16 @@ class Injector:
             ValueError: If the target <div id="{target_id}"> is not found.
             OSError: If there is an issue reading the file.
         """
+        # Accepts id="x" or id='x'
+        id_attr = rf'id=["\']{target_id}["\']'
+
+        # Match the opening div, regardless of quotes
         open_div_pattern = re.compile(
-            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*(?:\n|</div>)',
+            rf'^(?P<indent>[ \t]*)<div\s+[^>]*{id_attr}[^>]*>',
             re.MULTILINE,
         )
         open_div_match = open_div_pattern.search(self.html)
+
         if not open_div_match:
             raise HTMLElementNotFoundError(f"Could not find <div id='{target_id}'>")
 
@@ -92,19 +97,37 @@ class Injector:
             f"{base_indent}{indent_unit}{line}" for line in inject_lines
         )
 
+        # Full block matcher: handles:
+        #   <div ...> ... </div>
+        #   <div ...></div>
+        #   <div ...>   </div>
         full_div_pattern = re.compile(
-            rf'(?P<open>^[ \t]*<div\s+id="{target_id}"[^>]*>\s*)(?P<inner>.*?)(?P<close></div>)',
-            re.DOTALL | re.MULTILINE,
+            rf'(?P<open><div\s+[^>]*{id_attr}[^>]*>)'
+            rf'(?P<inner>.*?)'
+            rf'(?P<close></div>)',
+            re.DOTALL
         )
 
-        if not full_div_pattern.search(self.html):
+        match = full_div_pattern.search(self.html)
+        if not match:
             raise InjectionError(
                 f"Full <div id='{target_id}'> block not found for injection."
             )
 
-        result = full_div_pattern.sub(
-            lambda match: f"{match.group(1)}{indented_html}\n{match.group(3)}",
-            self.html,
+        open_tag = match.group("open")
+        close_tag = match.group("close")
+
+        # If one-liner (<div id="x"></div>), add newline/indentation
+        if match.group("inner").strip() == "":
+            new_inner = f"\n{indented_html}\n{base_indent}"
+        else:
+            # Multi-line div
+            new_inner = f"\n{indented_html}\n{base_indent}"
+
+        result = (
+            self.html[:match.start()] +
+            f"{open_tag}{new_inner}{close_tag}" +
+            self.html[match.end():]
         )
 
         error_handler.info(f"HTML successfully injected into <div id='{target_id}'>")
