@@ -22,7 +22,7 @@ jobs:
 
       - name: Setup BibInject
         run: |
-         ./install.sh 
+         ./setup.sh 
 
       - name: Run BibInject
         run: |
