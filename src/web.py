@@ -22,12 +22,19 @@ def index():
 def inject_web():
     """Receive form data, run the inject pipeline, and return output HTML."""
 
+    global last_output_html, last_input_filename
+
     # Read HTML input (file or textarea)
     html_text = ""
+    filename = None
     if "htmlfile" in request.files and request.files["htmlfile"].filename:
-        html_text = request.files["htmlfile"].read().decode("utf-8")
+        file = request.files["htmlfile"]
+        filename = file.filename
+        html_text = file.read().decode("utf-8")
     else:
         html_text = request.form.get("htmltext", "")
+
+    last_input_filename = filename 
 
     # Read BibTeX input (file or textarea)
     bib_text = ""
@@ -52,7 +59,6 @@ def inject_web():
         target_id=target_id,
     )
 
-    global last_output_html
     last_output_html = output_html
 
     data = UIData()
@@ -61,17 +67,28 @@ def inject_web():
 
 @app.route("/download", methods=["POST"])
 def download_output():
-    html_content = request.form.get("output")
+    global last_input_filename
 
+    html_content = request.form.get("output")
     if not html_content:
         return "No output to download.", 400
+
+    # If no file uploaded, use default name
+    input_name = last_input_filename or "output.html"
+
+    # Split extension safely
+    if "." in input_name:
+        base, ext = input_name.rsplit(".", 1)
+        output_name = f"{base}-injected.{ext}"
+    else:
+        output_name = input_name + "-injected.html"
 
     buffer = BytesIO()
     buffer.write(html_content.encode("utf-8"))
     buffer.seek(0)
 
     return send_file(
-        buffer, as_attachment=True, download_name="output.html", mimetype="text/html"
+        buffer, as_attachment=True, download_name=output_name, mimetype="text/html"
     )
 
 
