@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 
 # Local Imports
+from .parser import Parser 
+from .gen import Generator
 from .error_handler import (
     ErrorHandler,
     TemplateNotFoundError,
@@ -22,15 +24,32 @@ class Injector:
     A utility class for injecting HTML snippets into a specific <div> by ID within an HTML template file.
     """
 
-    def __init__(self, template_path: str):
-        self.template_path = Path(template_path)
+    def __init__(self, template: str, *, is_path: bool = True):
+        """
+        template:
+            - if is_path=True → treat as filesystem path
+            - if is_path=False → treat as raw HTML text (already loaded)
+        """
+        self.is_path = is_path
 
-        if not self.template_path.exists():
-            raise TemplateNotFoundError(f"Template not found: {template_path}")
+        if is_path:
+            self.template_path = Path(template)
 
-        self.html = self._read_template()
+            if not self.template_path.exists():
+                raise TemplateNotFoundError(f"Template not found: {template}")
 
-        error_handler.info(f"Loaded template from '{template_path}'")
+            self.html = self._read_template()
+            error_handler.info(f"Loaded template from '{template}'")
+
+        else:
+            # Direct HTML string, no file reading
+            self.template_path = None
+
+            if not template.strip():
+                raise TemplateReadError("Provided template HTML is empty.")
+
+            self.html = template  # Use the string directly
+            error_handler.info("Loaded template from string input.")
 
     def _read_template(self) -> str:
         content = self.template_path.read_text(encoding="utf-8")
@@ -149,3 +168,48 @@ class Injector:
             raise FileWriteError(f"Failed to write to template '{self.template_path}'")
 
         error_handler.info(f"Replaced original file '{self.template_path}'")
+
+
+    def run_injection_pipeline(html_text, bib_text, style, order, group, target_id):
+        """Runs the BibInject pipeline using form or CLI values and returns final HTML."""
+    
+        # ---- 1. Parse BibTeX ----
+        parser = Parser(expand_strings=True)
+        data = parser.parse_string(bib_text)
+        entries = data.get("entries", [])
+        if not entries:
+            return "Error: No valid BibTeX entries found."
+    
+        # Step 2: Order entries (reverse=True for desc)
+        reverse_order = order == "desc"
+        entries = parser.order_entries(entries, reverse=reverse_order)
+
+        # Step 3: Group entries if requested
+        grouped_entries = None
+        if group:
+            grouped_entries = parser.group_entries(entries, by=group)
+        else:
+            grouped_entries = {"All": entries}
+
+        # Step 4: Generate HTML for each group
+        generated_blocks = []
+        for group_name, group_items in grouped_entries.items():
+            group_html = []
+            for entry in group_items:
+                html = Generator(entry, style).generate_html()
+                group_html.append(html)
+        
+            # Optionally add a header per group
+            if group:
+                group_header = f"<h2>{group_name}</h2>"
+                generated_blocks.append(group_header + "\n" + "\n\n".join(group_html))
+            else:
+                generated_blocks.append("\n\n".join(group_html))
+        
+        combined_html = "\n\n".join(generated_blocks)
+    
+        # ---- 5. Inject into the provided HTML ----
+        injector = Injector(html_text, is_path=False)
+        final_html = injector.inject_html(combined_html, target_id)
+    
+        return final_html
