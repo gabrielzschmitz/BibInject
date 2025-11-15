@@ -82,8 +82,8 @@ def run_cli():
     )
 
     # If pipeline returned an error, show it
-    if output_html.startswith("Error:"):
-        error_handler.error(output_html)
+    if not isinstance(output_html, str):
+        print("Error: HTML generation failed.")
         return
 
     # ---- Save output ----
