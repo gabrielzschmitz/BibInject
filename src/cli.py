@@ -3,6 +3,7 @@ from .parser import Parser
 from .gen import Generator
 from .injector import Injector
 from .error_handler import ErrorHandler
+from .web import run_web
 
 # Initialize error handler
 error_handler = ErrorHandler()
@@ -12,42 +13,57 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Inject BibTeX references into an HTML template."
     )
-    parser.add_argument("--input", required=True, help="Path to the BibTeX input file (.bib).")
+
+    # --- WEB MODE (optional, triggers early exit) ---
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Start the BibInject web interface.",
+    )
+
+    # --- CLI MODE ARGS (no longer required=True here) ---
+    parser.add_argument("--input", help="Path to the BibTeX input file (.bib).")
     parser.add_argument(
         "--refspec",
-        required=True,
         help="Path or name of the HTML reference specification template.",
     )
     parser.add_argument(
         "--template",
-        required=True,
         help="Target HTML template file into which references are injected.",
     )
     parser.add_argument(
         "--target-id",
-        required=True,
         help="The ID of the <div> or element where references should be injected.",
     )
     parser.add_argument(
         "--order",
         choices=["asc", "desc"],
         default="desc",
-        help="Order of entries by year/month. Use 'asc' for oldest first or 'desc' for most recent first (default).",
+        help="Order of entries by year/month.",
     )
     parser.add_argument(
         "--group",
         help="Optional field name to group entries by year/month.",
     )
+
+    # Positional output (optional in web mode)
     parser.add_argument(
         "output",
+        nargs="?",
         help="Output HTML file path where the final injected HTML will be written.",
     )
+
     return parser.parse_args()
 
 
 @error_handler.handle
 def run_cli():
     args = parse_arguments()
+
+    # If --web is set, ignore all other arguments and start the web server
+    if args.web:
+        print("Starting BibInject web interface on http://127.0.0.1:5000 ...")
+        return run_web()
 
     # Step 1: Parse BibTeX
     parser = Parser(expand_strings=True)
