@@ -77,7 +77,8 @@ class Injector:
             OSError: If there is an issue reading the file.
         """
         open_div_pattern = re.compile(
-            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*\n', re.MULTILINE
+            rf'^(?P<indent>[ \t]*)<div\s+id="{target_id}"[^>]*>\s*(?:\n|</div>)',
+            re.MULTILINE,
         )
         open_div_match = open_div_pattern.search(self.html)
         if not open_div_match:
@@ -92,9 +93,7 @@ class Injector:
         )
 
         full_div_pattern = re.compile(
-            rf'(^[ \t]*<div\s+id="{target_id}"[^>]*>\s*\n)'
-            rf"(.*?)"
-            rf"(^[ \t]*</div>)",
+            rf'(?P<open>^[ \t]*<div\s+id="{target_id}"[^>]*>\s*)(?P<inner>.*?)(?P<close></div>)',
             re.DOTALL | re.MULTILINE,
         )
 
