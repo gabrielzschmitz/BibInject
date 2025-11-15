@@ -8,6 +8,8 @@ from .error_handler import ErrorHandler
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 error_handler = ErrorHandler()
 
+last_output_html = ""
+
 
 @app.route("/", methods=["GET"])
 def index():
@@ -50,6 +52,9 @@ def inject_web():
         target_id=target_id,
     )
 
+    global last_output_html
+    last_output_html = output_html
+
     data = UIData()
     return render_template("web.html", data=data, output=output_html)
 
@@ -66,11 +71,17 @@ def download_output():
     buffer.seek(0)
 
     return send_file(
-        buffer,
-        as_attachment=True,
-        download_name="output.html",
-        mimetype="text/html"
+        buffer, as_attachment=True, download_name="output.html", mimetype="text/html"
     )
+
+
+@app.route("/preview")
+def preview():
+    global last_output_html
+    if not last_output_html:
+        return "<p>No output generated yet</p>"
+    return last_output_html
+
 
 def run_web(host="127.0.0.1", port=5000):
     """Entry point used by run.sh --web"""
