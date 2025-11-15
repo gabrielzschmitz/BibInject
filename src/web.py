@@ -83,7 +83,7 @@ def preview():
     return last_output_html
 
 
-def run_web(host="127.0.0.1", port=5000):
+def run_web(host="127.0.0.1", port=6969):
     """Entry point used by run.sh --web"""
     app.run(host=host, port=port, debug=False)
 

@@ -60,7 +60,7 @@ def run_cli():
 
     # If --web is set, ignore all other arguments and start the web server
     if args.web:
-        print("Starting BibInject web interface on http://127.0.0.1:5000 ...")
+        print("Starting BibInject web interface on http://127.0.0.1:6969 ...")
         return run_web()
 
     # ---- Load template HTML ----
