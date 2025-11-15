@@ -1,5 +1,6 @@
 # Third-Party Library Imports
 import re
+from typing import Optional
 from pathlib import Path
 
 # Local Imports
@@ -30,6 +31,7 @@ class Injector:
             - if is_path=True → treat as filesystem path
             - if is_path=False → treat as raw HTML text (already loaded)
         """
+        self.template_path: Optional[Path] = None
         self.is_path = is_path
 
         if is_path:
@@ -42,16 +44,14 @@ class Injector:
             error_handler.info(f"Loaded template from '{template}'")
 
         else:
-            # Direct HTML string, no file reading
-            self.template_path = None
-
             if not template.strip():
                 raise TemplateReadError("Provided template HTML is empty.")
 
-            self.html = template  # Use the string directly
+            self.html = template
             error_handler.info("Loaded template from string input.")
 
     def _read_template(self) -> str:
+        assert self.template_path is not None
         content = self.template_path.read_text(encoding="utf-8")
         if not content:
             raise TemplateReadError(
@@ -162,7 +162,7 @@ class Injector:
             raise FileWriteError(
                 f"Output path '{output_path}' exists but is not a file."
             )
-
+        
         written = path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to '{output_path}'")
@@ -185,6 +185,7 @@ class Injector:
         """
         result = self.inject_html(html_to_inject, target_id)
 
+        assert self.template_path is not None
         written = self.template_path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to template '{self.template_path}'")
