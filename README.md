@@ -149,9 +149,9 @@ jobs:
       - name: Run BibInject
         run: |
           DEBUG=TRUE ./bibinject.sh \
-            --input templates/refsample.bib \
+            --input samples/refsample.bib \
             --refspec apa \
-            --html templates/sample.html \
+            --html samples/sample.html \
             --target-id my-publications \
             --order desc \
             --group year \
