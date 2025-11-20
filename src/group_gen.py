@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from .gen import Generator
 
 # Local Imports
@@ -76,8 +76,6 @@ class GroupHTMLGenerator:
         - else: by (year, month)
         reverse: True for DESC (Z->A or newest->oldest)
         """
-        if entries is None:
-            entries = self.get_entries()
         if entries is None:
             raise OrderingError()
 
@@ -159,67 +157,70 @@ class GroupHTMLGenerator:
         entries: Optional[List[Dict[str, Any]]] = None,
         by: str = "year",
         reverse: bool = True,
-    ) -> Dict[str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]]:
+    ) -> Dict[str, Any]:
 
-        if entries is None:
-            entries = self.get_entries()
         if entries is None:
             raise GroupingError()
 
-        grouped: Dict[
-            str, Union[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]
-        ] = {}
-
         month_names = self.MONTH_ORDER[:-1]
 
-        is_year_month_group = by in (
-            "year/month",
-            "ym",
-            "month",
-        )
+        is_year_month_group = by in ("year/month", "ym", "month")
+
+        # ---- AUTHOR GROUPING -----------------------------------------
+        if by == "author":
+            grouped_authors: Dict[str, List[Dict[str, Any]]] = {}
+
+            for entry in entries:
+                fields = entry.get("fields", {})
+                authors = fields.get("author", [])
+
+                if isinstance(authors, str):
+                    if " and " in authors.lower():
+                        authors = [a.strip() for a in authors.split(" and ")]
+                    else:
+                        authors = [authors]
+
+                for author in authors:
+                    grouped_authors.setdefault(author, []).append(entry)
+
+            return grouped_authors
+
+        # ---- YEAR/MONTH OR YEAR GROUPING -----------------------------
+        if is_year_month_group:
+            grouped_nested: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+        else:
+            grouped_flat: Dict[str, List[Dict[str, Any]]] = {}
 
         for entry in entries:
             fields = entry.get("fields", {})
-
-            if by == "author":
-                authors = fields.get("author", [])
-                if isinstance(authors, str):
-                    s = authors
-                    if " and " in s.lower():
-                        authors = [a.strip() for a in s.split(" and ")]
-                    else:
-                        authors = [s]
-
-                for author in authors:
-                    grouped.setdefault(author, []).append(entry)
-                continue
-
             year = fields.get("year", "Unknown")
 
+            # Month parsing
             month_val = str(fields.get("month", "")).strip().lower()
             month = None
             if month_val:
                 if month_val.isdigit():
-                    mnum = int(month_val)
-                    if 1 <= mnum <= 12:
-                        month = month_names[mnum - 1]
+                    idx = int(month_val)
+                    if 1 <= idx <= 12:
+                        month = month_names[idx - 1]
                 else:
                     for name in month_names:
                         if name.lower().startswith(month_val[:3]):
                             month = name
                             break
 
+            # YEAR/MONTH grouping
             if is_year_month_group:
-                if year not in grouped or not isinstance(grouped[year], dict):
-                    grouped[year] = {}
+                year_bucket = grouped_nested.setdefault(year, {})
+                month_key = month or "Unknown"
+                year_bucket.setdefault(month_key, []).append(entry)
 
-                month_key = month if month else "Unknown"
-                grouped[year].setdefault(month_key, []).append(entry)
-
+            # YEAR-ONLY grouping
             else:
-                grouped.setdefault(year, []).append(entry)
+                grouped_flat.setdefault(year, []).append(entry)
 
-        return grouped
+        # Return correct shape
+        return grouped_nested if is_year_month_group else grouped_flat
 
     def render_groups(self, grouped_entries, reverse=False):
         """

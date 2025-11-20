@@ -2,7 +2,6 @@ import logging
 import pytest
 import textwrap
 from src.gen import Generator
-from src.parser import Parser
 
 
 logger = logging.getLogger(__name__)

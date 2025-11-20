@@ -5,7 +5,6 @@ from pathlib import Path
 
 # Local Imports
 from .parser import Parser
-from .gen import Generator
 from .group_gen import GroupHTMLGenerator
 from .error_handler import (
     ErrorHandler,
