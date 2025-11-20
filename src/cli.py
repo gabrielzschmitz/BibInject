@@ -37,11 +37,11 @@ def parse_arguments():
         "--order",
         choices=["asc", "desc"],
         default="desc",
-        help="Order of entries by year/month.",
+        help="Order of entries by year/month or alphanumeric.",
     )
     parser.add_argument(
         "--group",
-        help="Optional field name to group entries by year/month.",
+        help="Optional field name to group entries by year/month or author.",
     )
 
     # Positional output (optional in web mode)
