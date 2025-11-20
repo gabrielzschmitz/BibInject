@@ -2,7 +2,7 @@
 
 <img align="right" width="256px" src="./static/icons/logov1.1.png">
   
-![Version Badge](https://img.shields.io/badge/version-v1.0-pink)
+![Version Badge](https://img.shields.io/github/v/release/gabrielzschmitz/BibInject?color=pink)
 
 **BibInject** is a Python tool for parsing `.bib` (BibTeX) files and generating
 valid, styled HTML references. It supports injecting these references directly
