@@ -5,6 +5,8 @@ from src.error_handler import (
     HTMLElementNotFoundError,
     InjectionError,
     ParsingError,
+    OrderingError,
+    GroupingError,
     FileNotFoundError,
     FileWriteError,
     FileReadError,
@@ -21,6 +23,8 @@ def test_custom_error_messages():
     assert str(TemplateReadError("Read failed")) == "Read failed"
     assert str(InjectionError("Bad injection")) == "Bad injection"
     assert str(ParsingError("Parsing failed")) == "Parsing failed"
+    assert str(OrderingError("Ordering failed")) == "Ordering failed"
+    assert str(GroupingError("Grouping failed")) == "Grouping failed"
     assert str(FileNotFoundError("File missing")) == "File missing"
     assert str(FileWriteError("Write failed")) == "Write failed"
     assert str(FileReadError("Read failed")) == "Read failed"
@@ -36,6 +40,8 @@ def test_default_error_messages():
     assert str(TemplateReadError()) == "Failed to read HTML template content."
     assert str(InjectionError()) == "Failed to inject BibTeX content into the HTML."
     assert str(ParsingError()) == "An error occurred while parsing the file."
+    assert str(OrderingError()) == "An error occurred while ordering entry group."
+    assert str(GroupingError()) == "An error occurred while grouping entry group."
     assert str(FileNotFoundError()) == "File not found."
     assert str(FileWriteError()) == "An error occurred while writing to the file."
     assert str(FileReadError()) == "An error occurred while reading the file."
