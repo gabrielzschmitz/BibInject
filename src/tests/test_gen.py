@@ -2,7 +2,6 @@ import logging
 import pytest
 import textwrap
 from src.gen import Generator
-from src.parser import Parser
 
 
 logger = logging.getLogger(__name__)
@@ -90,84 +89,3 @@ def test_generate_html(mock_entry, mock_apa_template):
     assert repr(out) == repr(
         '<p id="bi-article">\nJean César, Ary Costa. (2013). An amazing title. <em>Nice Journal</em>, <em>12</em>, 12--23.\n</p>'
     )
-
-
-def test_generate_ordered_grouped_html(tmp_path, caplog):
-    caplog.set_level(logging.INFO)
-
-    entries = [
-        {
-            "type": "article",
-            "key": "Doe2024b",
-            "fields": {
-                "author": "John Doe",
-                "title": "Deep Learning Advances",
-                "year": "2024",
-                "month": "March",
-                "journal": "AI Journal",
-                "volume": "5",
-                "pages": "10--20",
-            },
-        },
-        {
-            "type": "article",
-            "key": "Doe2024a",
-            "fields": {
-                "author": "John Doe",
-                "title": "Neural Methods Overview",
-                "year": "2024",
-                "month": "January",
-                "journal": "Neural Computation",
-                "volume": "4",
-                "pages": "1--9",
-            },
-        },
-        {
-            "type": "article",
-            "key": "Smith2023",
-            "fields": {
-                "author": "Alice Smith",
-                "title": "Quantum AI Foundations",
-                "year": "2023",
-                "journal": "Quantum Journal",
-                "volume": "2",
-                "pages": "30--45",
-            },
-        },
-    ]
-
-    html_template = textwrap.dedent(
-        """
-    <!-- Article -->
-    <p id="bi-article">
-      {{author}}. ({{year}}). {{title}}. <em>{{journal}}</em>, <em>{{volume}}</em>, {{pages}}.
-    </p>
-    """
-    )
-    template_path = tmp_path / "apa.html"
-    template_path.write_text(html_template, encoding="utf-8")
-
-    rendered_entries = []
-    for entry in entries:
-        g = Generator(entry, str(template_path))
-        rendered_entries.append(g.generate_html())
-
-    parser = Parser()
-    ordered = parser.order_entries(entries, reverse=True)
-    grouped = parser.group_entries(ordered, by="year/month", reverse=True)
-    html = parser.group_entries_to_html(grouped)
-
-    logger.info(f"Grouped ordered HTML:\n{html}")
-
-    assert "<h2>2024</h2>" in html
-    assert "<h3>March</h3>" in html
-    assert "Deep Learning Advances" in html
-    assert "Neural Methods Overview" in html
-    assert "<h2>2023</h2>" in html
-    assert "Quantum AI Foundations" in html
-
-    years = [line for line in html.splitlines() if line.startswith("<h2>")]
-    assert years[0] == "<h2>2024</h2>"
-    assert years[-1] == "<h2>2023</h2>"
-
-    assert any("Grouped ordered HTML" in msg for msg in caplog.messages)

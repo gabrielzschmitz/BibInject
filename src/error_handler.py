@@ -43,6 +43,22 @@ class ParsingError(Exception):
         super().__init__(message or default)
 
 
+class OrderingError(Exception):
+    """Raised when an error occurs while attempting to order a entry group."""
+
+    def __init__(self, message: Optional[str] = None):
+        default: str = "An error occurred while ordering entry group."
+        super().__init__(message or default)
+
+
+class GroupingError(Exception):
+    """Raised when an error occurs while attempting to group a entry group."""
+
+    def __init__(self, message: Optional[str] = None):
+        default: str = "An error occurred while grouping entry group."
+        super().__init__(message or default)
+
+
 class FileNotFoundError(Exception):
     """Raised when an error occurs when file is not found."""
 
@@ -121,6 +137,8 @@ class ErrorHandler:
                 InjectionError,
                 HTMLElementNotFoundError,
                 ParsingError,
+                OrderingError,
+                GroupingError,
                 FileNotFoundError,
                 FileWriteError,
                 FileReadError,

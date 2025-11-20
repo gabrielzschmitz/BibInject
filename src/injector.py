@@ -4,8 +4,8 @@ from typing import Optional
 from pathlib import Path
 
 # Local Imports
-from .parser import Parser 
-from .gen import Generator
+from .parser import Parser
+from .group_gen import GroupHTMLGenerator
 from .error_handler import (
     ErrorHandler,
     TemplateNotFoundError,
@@ -81,7 +81,7 @@ class Injector:
 
         # Match the opening div, regardless of quotes
         open_div_pattern = re.compile(
-            rf'^(?P<indent>[ \t]*)<div\s+[^>]*{id_attr}[^>]*>',
+            rf"^(?P<indent>[ \t]*)<div\s+[^>]*{id_attr}[^>]*>",
             re.MULTILINE,
         )
         open_div_match = open_div_pattern.search(self.html)
@@ -102,10 +102,10 @@ class Injector:
         #   <div ...></div>
         #   <div ...>   </div>
         full_div_pattern = re.compile(
-            rf'(?P<open><div\s+[^>]*{id_attr}[^>]*>)'
-            rf'(?P<inner>.*?)'
-            rf'(?P<close></div>)',
-            re.DOTALL
+            rf"(?P<open><div\s+[^>]*{id_attr}[^>]*>)"
+            rf"(?P<inner>.*?)"
+            rf"(?P<close></div>)",
+            re.DOTALL,
         )
 
         match = full_div_pattern.search(self.html)
@@ -125,9 +125,9 @@ class Injector:
             new_inner = f"\n{indented_html}\n{base_indent}"
 
         result = (
-            self.html[:match.start()] +
-            f"{open_tag}{new_inner}{close_tag}" +
-            self.html[match.end():]
+            self.html[: match.start()]
+            + f"{open_tag}{new_inner}{close_tag}"
+            + self.html[match.end() :]
         )
 
         error_handler.info(f"HTML successfully injected into <div id='{target_id}'>")
@@ -162,7 +162,7 @@ class Injector:
             raise FileWriteError(
                 f"Output path '{output_path}' exists but is not a file."
             )
-        
+
         written = path.write_text(result, encoding="utf-8")
         if written is None:
             raise FileWriteError(f"Failed to write to '{output_path}'")
@@ -192,47 +192,31 @@ class Injector:
 
         error_handler.info(f"Replaced original file '{self.template_path}'")
 
-
     def run_injection_pipeline(html_text, bib_text, style, order, group, target_id):
         """Runs the BibInject pipeline using form or CLI values and returns final HTML."""
-    
+
         # ---- 1. Parse BibTeX ----
         parser = Parser(expand_strings=True)
         data = parser.parse_string(bib_text)
         entries = data.get("entries", [])
         if not entries:
             return "Error: No valid BibTeX entries found."
-    
-        # Step 2: Order entries (reverse=True for desc)
-        reverse_order = order == "desc"
-        entries = parser.order_entries(entries, reverse=reverse_order)
 
-        # Step 3: Group entries if requested
-        grouped_entries = None
-        if group:
-            grouped_entries = parser.group_entries(entries, by=group)
-        else:
-            grouped_entries = {"All": entries}
+        # Step 2: Order entries (reverse=True for desc)
+        html_gen = GroupHTMLGenerator(style)
+        reverse_order = order == "desc"
+        entries = html_gen.order_entries(entries, reverse=reverse_order, group=group)
+
+        # Step 3: Group entries
+        grouped = (
+            html_gen.group_entries(entries, by=group) if group else {"All": entries}
+        )
 
         # Step 4: Generate HTML for each group
-        generated_blocks = []
-        for group_name, group_items in grouped_entries.items():
-            group_html = []
-            for entry in group_items:
-                html = Generator(entry, style).generate_html()
-                group_html.append(html)
-        
-            # Optionally add a header per group
-            if group:
-                group_header = f"<h2>{group_name}</h2>"
-                generated_blocks.append(group_header + "\n" + "\n\n".join(group_html))
-            else:
-                generated_blocks.append("\n\n".join(group_html))
-        
-        combined_html = "\n\n".join(generated_blocks)
-    
-        # ---- 5. Inject into the provided HTML ----
+        combined_html = html_gen.render_groups(grouped, reverse=reverse_order)
+
+        # ---- 5. Inject final HTML ----
         injector = Injector(html_text, is_path=False)
         final_html = injector.inject_html(combined_html, target_id)
-    
+
         return final_html
