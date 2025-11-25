@@ -30,9 +30,9 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 
-@app.route('/uploads/<path:filename>')
+@app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
-    return send_from_directory(os.path.abspath(app.config["UPLOAD_FOLDER"]), filename)
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 @app.route("/upload-doi", methods=["POST"])
