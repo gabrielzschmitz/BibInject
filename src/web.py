@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, send_file, send_from_directory, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, abort
 from io import BytesIO
-import os
 from werkzeug.utils import secure_filename
 
 from .data import UIData
@@ -9,55 +8,37 @@ from .error_handler import ErrorHandler
 
 
 last_output_html = ""
-UPLOAD_FOLDER = "uploads"
 ALLOWED_EXT = {"svg", "png", "jpg", "jpeg", "gif"}
 
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 error_handler = ErrorHandler()
 
-
-@app.route("/", methods=["GET"])
-def index():
-    """Landing page with upload form."""
-    data = UIData()  # load all UI values
-    return render_template("web.html", data=data)
-
+in_memory_uploads = {}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 
-@app.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+@app.route("/", methods=["GET"])
+def index():
+    """Landing page."""
+    data = UIData()  # load all UI values
+    return render_template("web.html", data=data)
 
 
-@app.route("/upload-doi", methods=["POST"])
-def upload_doi_icon():
-    """Upload a DOI icon file and return the server-side path."""
-
-    if "doifile" not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files["doifile"]
-
-    if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(save_path)
-
-        return jsonify({
-            "success": True,
-            "path": save_path
-        })
-
-    return jsonify({"error": "Invalid file type"}), 400
+@app.route("/uploads/<filename>")
+def serve_uploaded_file(filename):
+    """Serve file stored in memory."""
+    file_data = in_memory_uploads.get(filename)
+    if not file_data:
+        abort(404)
+    return send_file(
+        BytesIO(file_data["bytes"]),
+        mimetype=file_data["mimetype"],
+        download_name=filename,
+        as_attachment=False,
+    )
 
 
 @app.route("/inject", methods=["POST"])
@@ -93,15 +74,22 @@ def inject_web():
     
     doi_icon = "none"
     if "doifile" in request.files and request.files["doifile"].filename:
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        
         file = request.files["doifile"]
         filename = secure_filename(file.filename)
-        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(save_path)
 
-        doi_icon = save_path
+        if allowed_file(filename):
+            file_bytes = file.read()
+            mimetype = file.mimetype or "application/octet-stream"
+
+            # Save file in memory
+            in_memory_uploads[filename] = {
+                "bytes": file_bytes,
+                "mimetype": mimetype,
+            }
+            # Set path to serve later
+            doi_icon = f"/uploads/{filename}"
+        else:
+            return jsonify({"error": "Invalid DOI icon file type"}), 400
 
     error_handler.info(f"DOI icon path: {doi_icon}")
 
