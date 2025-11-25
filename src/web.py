@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, jsonify, abort
+from typing import Dict
 from io import BytesIO
 from werkzeug.utils import secure_filename
 
@@ -14,7 +15,7 @@ ALLOWED_EXT = {"svg", "png", "jpg", "jpeg", "gif"}
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 error_handler = ErrorHandler()
 
-in_memory_uploads = {}
+in_memory_uploads: Dict[str, dict[str, bytes | str]] = {}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
