@@ -45,8 +45,8 @@ def parse_arguments():
     )
     parser.add_argument(
         "--doi-icon",
-        default="static/doi-icon.svg",
-        help="Path to the DOI icon SVG. Use 'None' to disable adding DOI icons.",
+        default="none",
+        help="Path to the optional DOI icon SVG",
     )
 
     # Positional output (optional in web mode)

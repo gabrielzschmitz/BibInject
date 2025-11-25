@@ -90,8 +90,6 @@ rendered as section headers.
   Optional DOI icon to display next to DOI links.
 
   * Provide a path to an SVG/PNG file (e.g., `static/doi.svg`).
-  * Use `None` to disable DOI icons entirely.
-    If omitted, the default icon (`static/doi.svg`) is used.
 
 * `<output>` (positional argument):
   Output HTML file to write, containing the injected reference list.
