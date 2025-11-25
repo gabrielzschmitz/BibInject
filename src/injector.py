@@ -202,7 +202,6 @@ class Injector:
         if not entries:
             return "Error: No valid BibTeX entries found."
 
-        error_handler.info(f"doi ai mais doi; {doi_icon}")
         doi_icon = None if doi_icon.lower() == "none" else doi_icon
 
         # Step 2: Order entries (reverse=True for desc)

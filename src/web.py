@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, send_from_directory
+from flask import Flask, render_template, request, send_file, send_from_directory, jsonify
 from io import BytesIO
 import os
 from werkzeug.utils import secure_filename
@@ -30,6 +30,11 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(os.path.abspath(app.config["UPLOAD_FOLDER"]), filename)
+
+
 @app.route("/upload-doi", methods=["POST"])
 def upload_doi_icon():
     """Upload a DOI icon file and return the server-side path."""
@@ -53,10 +58,6 @@ def upload_doi_icon():
         })
 
     return jsonify({"error": "Invalid file type"}), 400
-
-@app.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 @app.route("/inject", methods=["POST"])
