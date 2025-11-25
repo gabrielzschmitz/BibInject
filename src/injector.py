@@ -192,15 +192,18 @@ class Injector:
 
         error_handler.info(f"Replaced original file '{self.template_path}'")
 
-    def run_injection_pipeline(html_text, bib_text, style, order, group, target_id, doi_icon="static/doi-icon.svg"):
+    def run_injection_pipeline(html_text, bib_text, style, order, group, target_id, doi_icon):
         """Runs the BibInject pipeline using form or CLI values and returns final HTML."""
 
-        # ---- 1. Parse BibTeX ----
+        # Step 1: Parse BibTeX
         parser = Parser(expand_strings=True)
         data = parser.parse_string(bib_text)
         entries = data.get("entries", [])
         if not entries:
             return "Error: No valid BibTeX entries found."
+
+        error_handler.info(f"doi ai mais doi; {doi_icon}")
+        doi_icon = None if doi_icon.lower() == "none" else doi_icon
 
         # Step 2: Order entries (reverse=True for desc)
         html_gen = GroupHTMLGenerator(style, doi_icon=doi_icon)
@@ -215,7 +218,7 @@ class Injector:
             grouped = {"flat": entries} if group else entries
             combined_html = html_gen.render_flat(entries)
 
-        # ---- 5. Inject final HTML ----
+        # Step 5: Inject final HTML
         injector = Injector(html_text, is_path=False)
         final_html = injector.inject_html(combined_html, target_id)
 

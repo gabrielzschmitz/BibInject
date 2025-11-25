@@ -1,14 +1,22 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, send_from_directory
 from io import BytesIO
+import os
+from werkzeug.utils import secure_filename
 
 from .data import UIData
 from .injector import Injector
 from .error_handler import ErrorHandler
 
-app = Flask(__name__, template_folder="../templates", static_folder="../static")
-error_handler = ErrorHandler()
 
 last_output_html = ""
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXT = {"svg", "png", "jpg", "jpeg", "gif"}
+
+
+app = Flask(__name__, template_folder="../templates", static_folder="../static")
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+error_handler = ErrorHandler()
 
 
 @app.route("/", methods=["GET"])
@@ -16,6 +24,39 @@ def index():
     """Landing page with upload form."""
     data = UIData()  # load all UI values
     return render_template("web.html", data=data)
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
+
+
+@app.route("/upload-doi", methods=["POST"])
+def upload_doi_icon():
+    """Upload a DOI icon file and return the server-side path."""
+
+    if "doifile" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["doifile"]
+
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(save_path)
+
+        return jsonify({
+            "success": True,
+            "path": save_path
+        })
+
+    return jsonify({"error": "Invalid file type"}), 400
+
+@app.route("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 @app.route("/inject", methods=["POST"])
@@ -48,6 +89,21 @@ def inject_web():
     order = request.form.get("order")
     group = request.form.get("group")
     target_id = request.form.get("target_id")
+    
+    doi_icon = "none"
+    if "doifile" in request.files and request.files["doifile"].filename:
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        file = request.files["doifile"]
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(save_path)
+
+        doi_icon = save_path
+
+    error_handler.info(f"DOI icon path: {doi_icon}")
+
 
     # Run the processing pipeline
     output_html = Injector.run_injection_pipeline(
@@ -56,6 +112,7 @@ def inject_web():
         style=style,
         order=order,
         group=group,
+        doi_icon=doi_icon,
         target_id=target_id,
     )
 
