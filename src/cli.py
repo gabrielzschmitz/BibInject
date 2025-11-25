@@ -85,7 +85,7 @@ def run_cli():
         order=args.order,
         group=args.group,
         target_id=args.target_id,
-        doi_icon=None if args.doi_icon == "None" else args.doi_icon,
+        doi_icon=None if args.doi_icon.lower() == "none" else args.doi_icon,
     )
 
     # If pipeline returned an error, show it
