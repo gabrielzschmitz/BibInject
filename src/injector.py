@@ -202,7 +202,7 @@ class Injector:
         if not entries:
             return "Error: No valid BibTeX entries found."
 
-        doi_icon = None if doi_icon.lower() == "none" else doi_icon
+        doi_icon = None if not doi_icon or doi_icon.lower() == "none" else doi_icon
 
         # Step 2: Order entries (reverse=True for desc)
         html_gen = GroupHTMLGenerator(style, doi_icon=doi_icon)
