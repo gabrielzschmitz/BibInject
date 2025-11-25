@@ -51,17 +51,16 @@ cd BibInject
 Convert a `.bib` file and inject the result into an HTML element:
 
 ```sh
-./bibinject.sh              \
-    --input input.bib       \
-    --refspec apa           \
-    --html target.html      \
-    --target-id references  \
-    --order desc            \
-    --group year            \
+./bibinject.sh                  \
+    --input input.bib           \
+    --refspec apa               \
+    --html target.html          \
+    --target-id references      \
+    --order desc                \
+    --group year                \
+    --doi-icon static/doi.svg   \
     output.html
 ```
-
-Options:
 
 * `--input=<file>`:
   Path to the BibTeX (`.bib`) file containing the reference entries to be
@@ -86,6 +85,13 @@ year.
 * `--group=<field>`:
   Group the output by a BibTeX field (e.g., `year`, `author`). Groups are
 rendered as section headers.
+
+* `--doi-icon=<path|none>`:
+  Optional DOI icon to display next to DOI links.
+
+  * Provide a path to an SVG/PNG file (e.g., `static/doi.svg`).
+  * Use `None` to disable DOI icons entirely.
+    If omitted, the default icon (`static/doi.svg`) is used.
 
 * `<output>` (positional argument):
   Output HTML file to write, containing the injected reference list.
@@ -142,35 +148,51 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Clone BibInject
+        run: |
+          git clone https://github.com/gabrielzschmitz/BibInject.git tools/BibInject
+
       - name: Install BibInject
         run: |
-          ./install.sh
+          cd tools/BibInject
+          ./setup.sh
 
       - name: Run BibInject
         run: |
-          DEBUG=TRUE ./bibinject.sh \
-            --input samples/refsample.bib \
-            --refspec apa \
-            --html samples/sample.html \
-            --target-id my-publications \
-            --order desc \
-            --group year \
-            output.html
+          cd tools/BibInject
 
-      - name: Show resulting page
-        run: cat output.html
+          # Inject Publications
+          ./bibinject.sh \
+            --input ../../refs.bib \
+            --refspec abnt \
+            --html ../../publications.html \
+            --target-id publications \
+            --order desc \
+            ../../publications.html
+
+      - name: Prepare deployment folder
+        run: |
+          mkdir public
+          shopt -s extglob
+          cp -r !(tools|public) public/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: public/
 
 # Deploy your page only after BibInject has completed.
-# deploy:
-#   environment:
-#     name: github-pages
-#     url: ${{ steps.deployment.outputs.page_url }}
-#   runs-on: ubuntu-latest
-#   needs: bibinject
-#   steps:
-#     - name: Deploy to GitHub Pages
-#       id: deployment
-#       uses: actions/deploy-pages@v4
+#  deploy:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    environment:
+#      name: github-pages
+#      url: ${{ steps.deployment.outputs.page_url }}
+#
+#    steps:
+#      - name: Deploy to GitHub Pages
+#        id: deployment
+#        uses: actions/deploy-pages@v4
 ```
 
 ## 📄 License
