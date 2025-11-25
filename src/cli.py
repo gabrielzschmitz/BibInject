@@ -43,6 +43,11 @@ def parse_arguments():
         "--group",
         help="Optional field name to group entries by year/month or author.",
     )
+    parser.add_argument(
+        "--doi-icon",
+        default="static/doi-icon.svg",
+        help="Path to the DOI icon SVG. Use 'None' to disable adding DOI icons.",
+    )
 
     # Positional output (optional in web mode)
     parser.add_argument(
@@ -50,6 +55,7 @@ def parse_arguments():
         nargs="?",
         help="Output HTML file path where the final injected HTML will be written.",
     )
+
 
     return parser.parse_args()
 
@@ -79,6 +85,7 @@ def run_cli():
         order=args.order,
         group=args.group,
         target_id=args.target_id,
+        doi_icon=None if args.doi_icon == "None" else args.doi_icon,
     )
 
     # If pipeline returned an error, show it
