@@ -72,7 +72,7 @@ class Generator:
 
             return list(match.groups())
 
-    def __init__(self, entry: Dict[str, List[Any]], template_name: str):
+    def __init__(self, entry: Dict[str, List[Any]], template_name: str, doi_icon=None):
         """
         Initializes the Generator instance.
 
@@ -83,6 +83,7 @@ class Generator:
         self.data = entry
         self.template_name = template_name
         self.type = str(entry["type"])
+        self.doi_icon = doi_icon
 
     @error_handler.handle
     def _load_template(self) -> str:
@@ -183,9 +184,41 @@ class Generator:
         Generates the final HTML string by loading the template,
         splitting it into sections, rendering it with the entry data,
         and cleaning it.
-
+    
         Returns:
             str: The fully rendered and cleaned HTML string.
         """
         template_content = self._Splitter(self._load_template(), self.type).split()
-        return self._render(template_content)
+        rendered = self._render(template_content)
+
+        # Extract DOI
+        fields = dict(self.data["fields"])
+        doi = fields.get("doi")
+
+        if not doi:
+            return rendered
+
+        if self.doi_icon:  
+            # HTML with an image icon
+            doi_link = (
+                f'\n<a href="https://doi.org/{doi}" target="_blank" '
+                f'class="doi-link" aria-label="View DOI" '
+                f'style="display:inline-flex; align-items:center; gap:4px;">'
+                f'<img src="{self.doi_icon}" alt="DOI icon" class="doi-icon"> '
+                f'DOI</a>'
+            )
+
+        else:
+            # Fallback: text-only DOI link
+            doi_link = (
+                f'\n<a href="https://doi.org/{doi}" target="_blank" '
+                f'class="doi-link" aria-label="View DOI" >DOI</a>'
+            )
+
+        rendered = re.sub(
+            r"(<p[^>]*>)",
+            r"\1" + doi_link,
+            rendered,
+            count=1,
+        )
+        return rendered

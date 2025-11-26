@@ -37,11 +37,12 @@ class GroupHTMLGenerator:
         "Unknown",
     ]
 
-    def __init__(self, style):
+    def __init__(self, style, doi_icon="static/doi-icon.svg"):
         self.style = style
+        self.doi_icon = None if doi_icon == "None" else doi_icon
 
     def _render_entry(self, entry):
-        return Generator(entry, self.style).generate_html()
+        return Generator(entry, self.style, doi_icon=self.doi_icon).generate_html()
 
     def _sort_group_keys(self, keys, reverse):
         """
@@ -248,3 +249,7 @@ class GroupHTMLGenerator:
             blocks.append(block)
 
         return "\n\n".join(blocks)
+
+    def render_flat(self, entries):
+        """Render entries WITHOUT any group <h2> or month <h3> headers."""
+        return "\n".join(self._render_entry(e) for e in entries)

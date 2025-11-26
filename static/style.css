@@ -1,6 +1,6 @@
 /* Global style reset and font setup */
 body {
-  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: #f5f7fa;
   color: #222;
   margin: 0;
@@ -15,7 +15,7 @@ h1 {
   font-size: 2rem;
   color: #222;
   letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Main publications container */
@@ -64,8 +64,14 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive adjustments */
@@ -77,4 +83,35 @@ body {
   h1 {
     font-size: 1.6rem;
   }
+}
+
+.doi-link {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 48px;
+  height: 32px;
+  text-decoration: none;
+  color: #4a90e2;
+  transition: all 0.2s;
+  padding-right: 4px;
+}
+
+.doi-link:hover,
+.doi-link:focus {
+  color: #0073e6;
+  outline: none;
+  text-decoration: none;
+}
+
+.doi-icon {
+  filter: brightness(0) saturate(100%) invert(51%) sepia(70%) saturate(1625%)
+    hue-rotate(190deg) brightness(95%) contrast(86%);
+  width: 16px;
+  height: 16px;
+}
+
+.doi-icon:hover,
+.doi-icon:focus {
+  filter: brightness(0) saturate(100%) invert(31%) sepia(36%) saturate(5134%)
+    hue-rotate(197deg) brightness(95%) contrast(101%);
 }
