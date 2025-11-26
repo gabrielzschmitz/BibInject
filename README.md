@@ -1,6 +1,6 @@
 # BibInject
 
-<img align="right" width="256px" src="./static/icons/logov1.1.png">
+<img align="right" width="192px" src="./static/icons/logo1.2.svg">
   
 ![Version Badge](https://img.shields.io/github/v/release/gabrielzschmitz/BibInject?color=pink)
 
