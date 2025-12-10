@@ -3,6 +3,9 @@
 <img align="right" width="192px" src="./static/icons/logo1.2.svg">
   
 ![Version Badge](https://img.shields.io/github/v/release/gabrielzschmitz/BibInject?color=pink)
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
+<a href="https://www.buymeacoffee.com/gabrielzschmitz" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 20px !important;width: 87px;" ></a>
+<a href="https://github.com/gabrielzschmitz/BibInject"><img src="https://img.shields.io/github/stars/gabrielzschmitz/BibInject?style=social" alt="Give me a Star"></a>
 
 **BibInject** is a Python tool for parsing `.bib` (BibTeX) files and generating
 valid, styled HTML references. It supports injecting these references directly
@@ -103,6 +106,11 @@ Start a local web server:
 ```sh
 ./bibinject.sh --web
 ```
+
+<p align="center">
+    <img align="center" width="512px" src="./static/web-ui-demo.png"><br>
+    <i align="center">Demonstration of the Web Interface</i>
+</p>
 
 This launches a browser-friendly interface where you can upload `.bib` files,
 preview the injected output, and download the updated HTML at:
