@@ -1,8 +1,9 @@
 import logging
-import pytest
 import textwrap
-from src.gen import Generator
 
+import pytest
+
+from src.gen import Generator, build_bibtex
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,12 @@ def mock_entry():
             "journal": "Nice Journal",
         },
     }
+
+
+@pytest.fixture
+def mock_entry_with_doi(mock_entry):
+    entry = {**mock_entry, "fields": {**mock_entry["fields"], "doi": "10.1000/xyz"}}
+    return entry
 
 
 def test_splitter():
@@ -87,5 +94,40 @@ def test_generate_html(mock_entry, mock_apa_template):
     out = g.generate_html()
     logger.info(out)
     assert repr(out) == repr(
-        '<p id="bi-article">\nJean César, Ary Costa. (2013). An amazing title. <em>Nice Journal</em>, <em>12</em>, 12--23.\n</p>'
+        '<p id="bi-article">\n'
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@article{Cesar2013,\n'
+        '  author = {Jean César, Ary Costa},\n'
+        '  title = {An amazing title},\n'
+        '  year = {2013},\n'
+        '  volume = {12},\n'
+        '  pages = {12--23},\n'
+        '  journal = {Nice Journal},\n'
+        '}</span>\n'
+        'Jean César, Ary Costa. (2013). An amazing title. <em>Nice Journal</em>, <em>12</em>, 12--23.\n'
+        '</p>'
     )
+
+
+def test_generate_html_with_doi(mock_entry_with_doi, mock_apa_template):
+    g = Generator(mock_entry_with_doi, mock_apa_template)
+    out = g.generate_html()
+    logger.info(out)
+    assert 'class="doi-link"' in out
+    assert 'https://doi.org/10.1000/xyz' in out
+    assert 'class="bibtex-btn"' in out
+    assert 'class="bibtex-entry"' in out
+
+
+def test_build_bibtex(mock_entry):
+    expected = (
+        "@article{Cesar2013,\n"
+        "  author = {Jean César, Ary Costa},\n"
+        "  title = {An amazing title},\n"
+        "  year = {2013},\n"
+        "  volume = {12},\n"
+        "  pages = {12--23},\n"
+        "  journal = {Nice Journal},\n"
+        "}"
+    )
+    assert build_bibtex(mock_entry) == expected

@@ -8,6 +8,47 @@ from .error_handler import ErrorHandler, OrderingError, GroupingError
 error_handler = ErrorHandler()
 
 
+BIBTEX_SCRIPT = """
+<script>
+(function () {
+  function copyText(text, button) {
+    var done = function () {
+      if (button) {
+        var original = button.textContent;
+        button.textContent = "Copied!";
+        setTimeout(function () { button.textContent = original; }, 1500);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+    } else {
+      fallback(text, done);
+    }
+  }
+  function fallback(text, done) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "absolute";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    done();
+  }
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest(".bibtex-btn");
+    if (!button) return;
+    var span = button.parentNode.querySelector(".bibtex-entry");
+    if (!span) return;
+    copyText(span.textContent, button);
+  });
+})();
+</script>
+"""
+
+
 class GroupHTMLGenerator:
     """
     Generates grouped HTML blocks using the existing Generator class.
@@ -248,8 +289,8 @@ class GroupHTMLGenerator:
             block = f"<h2>{group_name}</h2>\n" + "\n\n".join(html_parts)
             blocks.append(block)
 
-        return "\n\n".join(blocks)
+        return "\n\n".join(blocks) + BIBTEX_SCRIPT
 
     def render_flat(self, entries):
         """Render entries WITHOUT any group <h2> or month <h3> headers."""
-        return "\n".join(self._render_entry(e) for e in entries)
+        return "\n".join(self._render_entry(e) for e in entries) + BIBTEX_SCRIPT

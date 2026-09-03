@@ -1,7 +1,8 @@
-import textwrap
-import pytest
 import logging
-from src.group_gen import GroupHTMLGenerator
+
+import pytest
+
+from src.group_gen import BIBTEX_SCRIPT, GroupHTMLGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -57,26 +58,55 @@ def test_render_year_month_desc(group_gen, entries):
     html = group_gen.render_groups(grouped, reverse=True)
     logger.error(f"niiger3: {html} ")
 
-    expected_html = textwrap.dedent(
-        """<h2>2015</h2>
-<h3>March</h3>
+    booklet2_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@booklet{CitekeyBooklet2,\n'
+        '  title = {Hiking Routes Near Stockholm},\n'
+        '  author = {Erik Lindstrom and Maria Swetla},\n'
+        '  howpublished = {Distributed at the Stockholm Hiking Association},\n'
+        '  month = {mar},\n'
+        '  year = {2015},\n'
+        '}</span>'
+    )
+    booklet_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@booklet{CitekeyBooklet,\n'
+        '  title = {Canoe tours in Sweden},\n'
+        '  author = {Maria Swetla and Leonard Susskind},\n'
+        '  howpublished = {Distributed at the Stockholm Tourist Office},\n'
+        '  month = {jul},\n'
+        '  year = {2015},\n'
+        '}</span>'
+    )
+    book_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@book{CitekeyBook,\n'
+        '  author = {Leonard Susskind and George Hrabovsky},\n'
+        '  title = {Classical mechanics: the theoretical minimum},\n'
+        '  publisher = {Penguin Random House},\n'
+        '  address = {New York, NY},\n'
+        '  year = {2014},\n'
+        '}</span>'
+    )
 
-<p id="bi-booklet">
-Erik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. Distributed at the Stockholm Hiking Association, mar 2015.
-</p>
-
-<h3>July</h3>
-
-<p id="bi-booklet">
-Maria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. Distributed at the Stockholm Tourist Office, jul 2015.
-</p>
-
-<h2>2014</h2>
-<h3>Unknown</h3>
-
-<p id="bi-book">
-Leonard Susskind and George Hrabovsky. <em>Classical mechanics: the theoretical minimum</em>. Penguin Random House, 2014.
-</p>"""
+    expected_html = (
+        "<h2>2015</h2>\n"
+        "<h3>March</h3>\n\n"
+        '<p id="bi-booklet">\n' + booklet2_button +
+        "\nErik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. "
+        "Distributed at the Stockholm Hiking Association, mar 2015.\n"
+        "</p>\n\n"
+        "<h3>July</h3>\n\n"
+        '<p id="bi-booklet">\n' + booklet_button +
+        "\nMaria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. "
+        "Distributed at the Stockholm Tourist Office, jul 2015.\n"
+        "</p>\n\n"
+        "<h2>2014</h2>\n"
+        "<h3>Unknown</h3>\n\n"
+        '<p id="bi-book">\n' + book_button +
+        "\nLeonard Susskind and George Hrabovsky. <em>Classical mechanics: "
+        "the theoretical minimum</em>. Penguin Random House, 2014.\n"
+        "</p>" + BIBTEX_SCRIPT
     )
 
     assert html == expected_html
@@ -89,33 +119,68 @@ def test_render_by_author_asc(group_gen, entries):
     html = group_gen.render_groups(grouped, reverse=False)
     logger.error(f"niiger: {html} ")
 
-    expected_html = textwrap.dedent(
-        """<h2>Erik Lindstrom</h2>
-<p id="bi-booklet">
-Erik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. Distributed at the Stockholm Hiking Association, mar 2015.
-</p>
-
-<h2>George Hrabovsky</h2>
-<p id="bi-book">
-Leonard Susskind and George Hrabovsky. <em>Classical mechanics: the theoretical minimum</em>. Penguin Random House, 2014.
-</p>
-
-<h2>Leonard Susskind</h2>
-<p id="bi-book">
-Leonard Susskind and George Hrabovsky. <em>Classical mechanics: the theoretical minimum</em>. Penguin Random House, 2014.
-</p>
-
-<p id="bi-booklet">
-Maria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. Distributed at the Stockholm Tourist Office, jul 2015.
-</p>
-
-<h2>Maria Swetla</h2>
-<p id="bi-booklet">
-Erik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. Distributed at the Stockholm Hiking Association, mar 2015.
-</p>
-
-<p id="bi-booklet">
-Maria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. Distributed at the Stockholm Tourist Office, jul 2015.
-</p>"""
+    booklet2_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@booklet{CitekeyBooklet2,\n'
+        '  title = {Hiking Routes Near Stockholm},\n'
+        '  author = {Erik Lindstrom and Maria Swetla},\n'
+        '  howpublished = {Distributed at the Stockholm Hiking Association},\n'
+        '  month = {mar},\n'
+        '  year = {2015},\n'
+        '}</span>'
     )
+    booklet_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@booklet{CitekeyBooklet,\n'
+        '  title = {Canoe tours in Sweden},\n'
+        '  author = {Maria Swetla and Leonard Susskind},\n'
+        '  howpublished = {Distributed at the Stockholm Tourist Office},\n'
+        '  month = {jul},\n'
+        '  year = {2015},\n'
+        '}</span>'
+    )
+    book_button = (
+        '<button type="button" class="bibtex-btn" aria-label="Copy BibTeX entry">BIBTEX</button>\n'
+        '<span class="bibtex-entry" hidden>@book{CitekeyBook,\n'
+        '  author = {Leonard Susskind and George Hrabovsky},\n'
+        '  title = {Classical mechanics: the theoretical minimum},\n'
+        '  publisher = {Penguin Random House},\n'
+        '  address = {New York, NY},\n'
+        '  year = {2014},\n'
+        '}</span>'
+    )
+
+    def booklet2():
+        return (
+            '<p id="bi-booklet">\n' + booklet2_button +
+            "\nErik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. "
+            "Distributed at the Stockholm Hiking Association, mar 2015.\n"
+            "</p>"
+        )
+
+    def booklet():
+        return (
+            '<p id="bi-booklet">\n' + booklet_button +
+            "\nMaria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. "
+            "Distributed at the Stockholm Tourist Office, jul 2015.\n"
+            "</p>"
+        )
+
+    def book():
+        return (
+            '<p id="bi-book">\n' + book_button +
+            "\nLeonard Susskind and George Hrabovsky. <em>Classical mechanics: "
+            "the theoretical minimum</em>. Penguin Random House, 2014.\n"
+            "</p>"
+        )
+
+    expected_html = "\n\n".join(
+        [
+            f"<h2>Erik Lindstrom</h2>\n{booklet2()}",
+            f"<h2>George Hrabovsky</h2>\n{book()}",
+            f"<h2>Leonard Susskind</h2>\n{book()}\n\n{booklet()}",
+            f"<h2>Maria Swetla</h2>\n{booklet2()}\n\n{booklet()}",
+        ]
+    ) + BIBTEX_SCRIPT
+
     assert html == expected_html

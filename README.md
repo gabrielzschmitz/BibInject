@@ -94,6 +94,12 @@ rendered as section headers.
 
   * Provide a path to an SVG/PNG file (e.g., `static/doi.svg`).
 
+  * Each generated reference includes a BIBTEX button (next to the DOI link
+    when present) that copies the complete BibTeX entry for that reference to
+    the clipboard. No navigation, download, or additional request required.
+    This works on the static output page, with a fallback for non-secure
+    contexts.
+
 * `<output>` (positional argument):
   Output HTML file to write, containing the injected reference list.
 

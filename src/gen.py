@@ -2,6 +2,7 @@
 from pathlib import Path
 import re
 import os
+import html
 from typing import Dict, List, Any
 
 # Local Imports
@@ -16,6 +17,27 @@ from .error_handler import (
 
 # Initialize Error Handling
 error_handler = ErrorHandler()
+
+
+def build_bibtex(entry: Dict[str, Any]) -> str:
+    """
+    Reconstruct a complete BibTeX entry string from parsed entry data.
+
+    Args:
+        entry (dict): Parsed entry with 'type', 'key' and 'fields'.
+
+    Returns:
+        str: A valid BibTeX entry, e.g. '@article{key, field = {value}, ...}'.
+    """
+    entry_type = str(entry.get("type", "misc"))
+    key = str(entry.get("key", ""))
+    fields = dict(entry.get("fields", {}))
+
+    lines = [f"@{entry_type}{{{key},"]
+    for field, value in fields.items():
+        lines.append(f"  {field} = {{{value}}},")
+    lines.append("}")
+    return "\n".join(lines)
 
 
 class Generator:
@@ -191,33 +213,45 @@ class Generator:
         template_content = self._Splitter(self._load_template(), self.type).split()
         rendered = self._render(template_content)
 
+        actions = ""
+
         # Extract DOI
         fields = dict(self.data["fields"])
         doi = fields.get("doi")
 
-        if not doi:
-            return rendered
+        if doi:
+            if self.doi_icon:  
+                # HTML with an image icon
+                doi_link = (
+                    f'\n<a href="https://doi.org/{doi}" target="_blank" '
+                    f'class="doi-link" aria-label="View DOI" '
+                    f'style="display:inline-flex; align-items:center; gap:4px;">'
+                    f'<img src="{self.doi_icon}" alt="DOI icon" class="doi-icon"> '
+                    f'DOI</a>'
+                )
 
-        if self.doi_icon:  
-            # HTML with an image icon
-            doi_link = (
-                f'\n<a href="https://doi.org/{doi}" target="_blank" '
-                f'class="doi-link" aria-label="View DOI" '
-                f'style="display:inline-flex; align-items:center; gap:4px;">'
-                f'<img src="{self.doi_icon}" alt="DOI icon" class="doi-icon"> '
-                f'DOI</a>'
-            )
+            else:
+                # Fallback: text-only DOI link
+                doi_link = (
+                    f'\n<a href="https://doi.org/{doi}" target="_blank" '
+                    f'class="doi-link" aria-label="View DOI" >DOI</a>'
+                )
 
-        else:
-            # Fallback: text-only DOI link
-            doi_link = (
-                f'\n<a href="https://doi.org/{doi}" target="_blank" '
-                f'class="doi-link" aria-label="View DOI" >DOI</a>'
-            )
+            actions += doi_link
+
+        # BIBTEX copy button with the full entry stored in a hidden span.
+        bibtex = build_bibtex(self.data)
+        bibtex_button = (
+            '\n<button type="button" class="bibtex-btn" '
+            'aria-label="Copy BibTeX entry">BIBTEX</button>'
+            f'\n<span class="bibtex-entry" hidden>{html.escape(bibtex, quote=True)}</span>'
+        )
+
+        actions += bibtex_button
 
         rendered = re.sub(
             r"(<p[^>]*>)",
-            r"\1" + doi_link,
+            r"\1" + actions,
             rendered,
             count=1,
         )

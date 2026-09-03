@@ -115,3 +115,31 @@ body {
   filter: brightness(0) saturate(100%) invert(31%) sepia(36%) saturate(5134%)
     hue-rotate(197deg) brightness(95%) contrast(101%);
 }
+
+.bibtex-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  height: 32px;
+  padding: 0 10px;
+  margin-left: 6px;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #4a90e2;
+  background: transparent;
+  border: 1px solid #4a90e2;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  vertical-align: middle;
+}
+
+.bibtex-btn:hover,
+.bibtex-btn:focus {
+  color: #fff;
+  background: #4a90e2;
+  outline: none;
+}
