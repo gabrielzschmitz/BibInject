@@ -1,4 +1,5 @@
 import argparse
+
 from .error_handler import ErrorHandler
 from .injector import Injector
 from .web import run_web

@@ -1,17 +1,18 @@
 import logging
+
 from src.error_handler import (
-    TemplateNotFoundError,
-    TemplateReadError,
+    EmptyFileError,
+    ErrorHandler,
+    FileNotFoundError,
+    FileReadError,
+    FileWriteError,
+    GroupingError,
     HTMLElementNotFoundError,
     InjectionError,
-    ParsingError,
     OrderingError,
-    GroupingError,
-    FileNotFoundError,
-    FileWriteError,
-    FileReadError,
-    ErrorHandler,
-    EmptyFileError,
+    ParsingError,
+    TemplateNotFoundError,
+    TemplateReadError,
 )
 
 logger = logging.getLogger(__name__)

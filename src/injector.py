@@ -1,20 +1,19 @@
 # Third-Party Library Imports
 import re
-from typing import Optional
 from pathlib import Path
+
+from .error_handler import (
+    ErrorHandler,
+    FileWriteError,
+    HTMLElementNotFoundError,
+    InjectionError,
+    TemplateNotFoundError,
+    TemplateReadError,
+)
+from .group_gen import GroupHTMLGenerator
 
 # Local Imports
 from .parser import Parser
-from .group_gen import GroupHTMLGenerator
-from .error_handler import (
-    ErrorHandler,
-    TemplateNotFoundError,
-    TemplateReadError,
-    HTMLElementNotFoundError,
-    InjectionError,
-    FileWriteError,
-)
-
 
 # Initialize Error Handling
 error_handler = ErrorHandler()
@@ -31,7 +30,7 @@ class Injector:
             - if is_path=True → treat as filesystem path
             - if is_path=False → treat as raw HTML text (already loaded)
         """
-        self.template_path: Optional[Path] = None
+        self.template_path: Path | None = None
         self.is_path = is_path
 
         if is_path:

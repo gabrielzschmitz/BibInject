@@ -1,12 +1,11 @@
-from flask import Flask, render_template, request, send_file, jsonify, abort
-from typing import Dict
 from io import BytesIO
+
+from flask import Flask, abort, jsonify, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
 from .data import UIData
-from .injector import Injector
 from .error_handler import ErrorHandler
-
+from .injector import Injector
 
 last_output_html = ""
 ALLOWED_EXT = {"svg", "png", "jpg", "jpeg", "gif"}
@@ -15,7 +14,7 @@ ALLOWED_EXT = {"svg", "png", "jpg", "jpeg", "gif"}
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 error_handler = ErrorHandler()
 
-in_memory_uploads: Dict[str, dict[str, bytes | str]] = {}
+in_memory_uploads: dict[str, dict[str, bytes | str]] = {}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
@@ -114,8 +113,6 @@ def inject_web():
 
 @app.route("/download", methods=["POST"])
 def download_output():
-    global last_input_filename
-
     html_content = request.form.get("output")
     if not html_content:
         return "No output to download.", 400
@@ -141,7 +138,6 @@ def download_output():
 
 @app.route("/preview")
 def preview():
-    global last_output_html
     if not last_output_html:
         return "<p>No output generated yet</p>"
     return last_output_html

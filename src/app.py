@@ -5,7 +5,7 @@ This module initializes and runs the BibInject application.
 """
 
 # Local Imports
-from src import __version__, __author__
+from src import __author__, __version__
 from src.cli import run_cli
 
 

@@ -1,11 +1,11 @@
 # Third-Party Library Imports
-import re
 import os
+import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # Local Imports
-from .error_handler import ErrorHandler, ParsingError, FileNotFoundError, FileReadError
+from .error_handler import ErrorHandler, FileNotFoundError, FileReadError, ParsingError
 
 # Initialize Error Handling
 error_handler = ErrorHandler()
@@ -18,7 +18,7 @@ class Parser:
 
     def __init__(self, expand_strings: bool = False):
         self.expand_strings: bool = expand_strings
-        self.data: Dict[str, List[Any]] = {
+        self.data: dict[str, list[Any]] = {
             "entries": [],
             "comments": [],
             "preambles": [],
@@ -26,7 +26,7 @@ class Parser:
         }
 
     @error_handler.handle
-    def parse_file(self, filename: str) -> Dict[str, List[Any]]:
+    def parse_file(self, filename: str) -> dict[str, list[Any]]:
         """
         Parses a BibTeX file from the filesystem.
 
@@ -52,7 +52,7 @@ class Parser:
         return self.parse_string(content)
 
     @error_handler.handle
-    def parse_string(self, content: str) -> Dict[str, List[Any]]:
+    def parse_string(self, content: str) -> dict[str, list[Any]]:
         """
         Parses a BibTeX string.
 
@@ -122,46 +122,46 @@ class Parser:
         )
         return self.data
 
-    def get_entries(self) -> List[Dict[str, Any]]:
+    def get_entries(self) -> list[dict[str, Any]]:
         """Return list of parsed BibTeX entries."""
         return self.data.get("entries", [])
 
-    def get_comments(self) -> List[str]:
+    def get_comments(self) -> list[str]:
         """Return list of BibTeX comments."""
         return self.data.get("comments", [])
 
-    def get_preambles(self) -> List[str]:
+    def get_preambles(self) -> list[str]:
         """Return list of BibTeX preambles."""
         return self.data.get("preambles", [])
 
-    def get_strings(self) -> List[Dict[str, str]]:
+    def get_strings(self) -> list[dict[str, str]]:
         """Return list of BibTeX string macros."""
         return self.data.get("strings", [])
 
-    def get_entry_fields(self, entry: Any) -> Optional[Dict[str, str]]:
+    def get_entry_fields(self, entry: Any) -> dict[str, str] | None:
         """Given an entry dict, return its fields dict or None if invalid."""
         return entry.get("fields") if isinstance(entry, dict) else None
 
-    def get_entry_field(self, entry: Any, field_name: str) -> Optional[str]:
+    def get_entry_field(self, entry: Any, field_name: str) -> str | None:
         """Return value of field_name for given entry, or None if not found."""
         fields = self.get_entry_fields(entry)
         if fields:
             return fields.get(field_name)
         return None
 
-    def get_entry_key(self, entry: Any) -> Optional[str]:
+    def get_entry_key(self, entry: Any) -> str | None:
         """Return citation key of the entry, or None."""
         if isinstance(entry, dict):
             return entry.get("key")
         return None
 
-    def get_entry_type(self, entry: Any) -> Optional[str]:
+    def get_entry_type(self, entry: Any) -> str | None:
         """Return type of the entry, or None."""
         if isinstance(entry, dict):
             return entry.get("type")
         return None
 
-    def _extract_brace_block(self, s: str, start: int) -> Tuple[str, int]:
+    def _extract_brace_block(self, s: str, start: int) -> tuple[str, int]:
         """
         Extract a balanced brace block from a given string.
 
@@ -190,7 +190,7 @@ class Parser:
             )
         return s[start + 1 : i - 1], i
 
-    def _parse_key_value(self, text: str) -> Dict[str, str]:
+    def _parse_key_value(self, text: str) -> dict[str, str]:
         """
         Parse a BibTeX string macro into a key-value pair.
 
@@ -207,7 +207,7 @@ class Parser:
             return {key: value}
         return {}
 
-    def _parse_entry(self, entry_type: str, text: str) -> Dict[str, Any]:
+    def _parse_entry(self, entry_type: str, text: str) -> dict[str, Any]:
         """
         Parse a BibTeX entry into its components.
 

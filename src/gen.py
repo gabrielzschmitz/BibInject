@@ -1,25 +1,24 @@
 # Third-Party Library Imports
-from pathlib import Path
-import re
-import os
 import html
-from typing import Dict, List, Any
+import os
+import re
+from pathlib import Path
+from typing import Any
 
 # Local Imports
 from .error_handler import (
+    EmptyFileError,
     ErrorHandler,
     FileNotFoundError,
     FileReadError,
-    EmptyFileError,
     HTMLElementNotFoundError,
 )
-
 
 # Initialize Error Handling
 error_handler = ErrorHandler()
 
 
-def build_bibtex(entry: Dict[str, Any]) -> str:
+def build_bibtex(entry: dict[str, Any]) -> str:
     """
     Reconstruct a complete BibTeX entry string from parsed entry data.
 
@@ -68,7 +67,7 @@ class Generator:
             self.html = html
             self.type = type_
 
-        def split(self) -> List[str]:
+        def split(self) -> list[str]:
             """
             Splits the HTML into opening tag, middle content, and closing tag
             based on the <p id="bi-{type}">...</p> block.
@@ -94,7 +93,7 @@ class Generator:
 
             return list(match.groups())
 
-    def __init__(self, entry: Dict[str, List[Any]], template_name: str, doi_icon=None):
+    def __init__(self, entry: dict[str, list[Any]], template_name: str, doi_icon=None):
         """
         Initializes the Generator instance.
 
@@ -140,7 +139,7 @@ class Generator:
 
         return content
 
-    def _render(self, elements: List[str]) -> str:
+    def _render(self, elements: list[str]) -> str:
         """
         Renders the HTML template by replacing placeholders with data values.
 

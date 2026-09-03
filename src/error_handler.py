@@ -1,12 +1,13 @@
 import logging
 import sys
-from typing import Callable, Any, Optional
+from collections.abc import Callable
+from typing import Any
 
 
 class TemplateNotFoundError(Exception):
     """Raised when the specified HTML template cannot be found."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "HTML template file was not found."
         super().__init__(message or default)
 
@@ -14,7 +15,7 @@ class TemplateNotFoundError(Exception):
 class TemplateReadError(Exception):
     """Raised when the specified HTML template has an error at reading."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "Failed to read HTML template content."
         super().__init__(message or default)
 
@@ -22,7 +23,7 @@ class TemplateReadError(Exception):
 class HTMLElementNotFoundError(Exception):
     """Raised when the target HTML element is not found in the HTML content."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "Target HTML element was not found in the HTML."
         super().__init__(message or default)
 
@@ -30,7 +31,7 @@ class HTMLElementNotFoundError(Exception):
 class InjectionError(Exception):
     """Raised when an error occurs during the injection of BibTeX data into the HTML."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "Failed to inject BibTeX content into the HTML."
         super().__init__(message or default)
 
@@ -38,7 +39,7 @@ class InjectionError(Exception):
 class ParsingError(Exception):
     """Raised when an error occurs while attempting to parse a file."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "An error occurred while parsing the file."
         super().__init__(message or default)
 
@@ -46,7 +47,7 @@ class ParsingError(Exception):
 class OrderingError(Exception):
     """Raised when an error occurs while attempting to order a entry group."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "An error occurred while ordering entry group."
         super().__init__(message or default)
 
@@ -54,7 +55,7 @@ class OrderingError(Exception):
 class GroupingError(Exception):
     """Raised when an error occurs while attempting to group a entry group."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "An error occurred while grouping entry group."
         super().__init__(message or default)
 
@@ -62,7 +63,7 @@ class GroupingError(Exception):
 class FileNotFoundError(Exception):
     """Raised when an error occurs when file is not found."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "File not found."
         super().__init__(message or default)
 
@@ -70,7 +71,7 @@ class FileNotFoundError(Exception):
 class FileWriteError(Exception):
     """Raised when an error occurs while attempting to write to a file."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "An error occurred while writing to the file."
         super().__init__(message or default)
 
@@ -78,7 +79,7 @@ class FileWriteError(Exception):
 class FileReadError(Exception):
     """Raised when an error occurs while attempting to read a file."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "An error occurred while reading the file."
         super().__init__(message or default)
 
@@ -86,7 +87,7 @@ class FileReadError(Exception):
 class EmptyFileError(Exception):
     """Raised when the file passed is empty."""
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, message: str | None = None):
         default: str = "The file is empty and cannot be processed."
         super().__init__(message or default)
 
@@ -128,7 +129,7 @@ class ErrorHandler:
             Callable: The wrapped function with error handling.
         """
 
-        def wrapper(*args: Any, **kwargs: Any) -> Optional[Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any | None:
             try:
                 return func(*args, **kwargs)
             except (

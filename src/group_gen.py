@@ -1,8 +1,8 @@
-from typing import Any, Dict, List, Optional
-from .gen import Generator
+from typing import Any, ClassVar
 
 # Local Imports
-from .error_handler import ErrorHandler, OrderingError, GroupingError
+from .error_handler import ErrorHandler, GroupingError, OrderingError
+from .gen import Generator
 
 # Initialize Error Handling
 error_handler = ErrorHandler()
@@ -62,7 +62,7 @@ class GroupHTMLGenerator:
       - correct month ordering
     """
 
-    MONTH_ORDER = [
+    MONTH_ORDER: ClassVar[list[str]] = [
         "January",
         "February",
         "March",
@@ -94,7 +94,7 @@ class GroupHTMLGenerator:
         def sort_key(k):
             try:
                 return int(k)
-            except Exception:
+            except (TypeError, ValueError):
                 return str(k).lower()
 
         return sorted(keys, key=sort_key, reverse=reverse)
@@ -108,10 +108,10 @@ class GroupHTMLGenerator:
     @error_handler.handle
     def order_entries(
         self,
-        entries: Optional[List[Dict[str, Any]]] = None,
+        entries: list[dict[str, Any]] | None = None,
         reverse: bool = False,
-        group: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        group: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Order entries:
         - if group == "author": alphanumeric by primary author's last name
@@ -196,10 +196,10 @@ class GroupHTMLGenerator:
     @error_handler.handle
     def group_entries(
         self,
-        entries: Optional[List[Dict[str, Any]]] = None,
+        entries: list[dict[str, Any]] | None = None,
         by: str = "year",
         reverse: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
 
         if entries is None:
             raise GroupingError()
@@ -210,7 +210,7 @@ class GroupHTMLGenerator:
 
         # ---- AUTHOR GROUPING -----------------------------------------
         if by == "author":
-            grouped_authors: Dict[str, List[Dict[str, Any]]] = {}
+            grouped_authors: dict[str, list[dict[str, Any]]] = {}
 
             for entry in entries:
                 fields = entry.get("fields", {})
@@ -229,9 +229,9 @@ class GroupHTMLGenerator:
 
         # ---- YEAR/MONTH OR YEAR GROUPING -----------------------------
         if is_year_month_group:
-            grouped_nested: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+            grouped_nested: dict[str, dict[str, list[dict[str, Any]]]] = {}
         else:
-            grouped_flat: Dict[str, List[Dict[str, Any]]] = {}
+            grouped_flat: dict[str, list[dict[str, Any]]] = {}
 
         for entry in entries:
             fields = entry.get("fields", {})

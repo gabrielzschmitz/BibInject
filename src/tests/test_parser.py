@@ -1,6 +1,8 @@
-import textwrap
 import logging
+import textwrap
+
 import pytest
+
 from src.parser import Parser
 
 logger = logging.getLogger(__name__)

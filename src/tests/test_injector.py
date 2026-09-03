@@ -1,6 +1,8 @@
-import textwrap
 import logging
+import textwrap
+
 import pytest
+
 from src.injector import Injector
 
 logger = logging.getLogger(__name__)
