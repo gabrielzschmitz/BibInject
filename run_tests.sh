@@ -42,6 +42,13 @@ fi
 echo -e "${INFO} Activating virtual environment '${VENV_NAME}'..."
 source "$VENV_NAME/bin/activate"
 
+# Ensure pytest is installed
+echo -e "${INFO} Ensuring pytest is installed..."
+pip install -q pytest || {
+  echo -e "${RED}${ERROR} Failed to install pytest.${RESET}"
+  exit 1
+}
+
 # Run pytest with PYTHONPATH set
 echo -e "${TEST} Running tests in ${YELLOW}${TARGET_PATH}${RESET}..."
 PYTHONPATH=$(pwd) pytest -v $VERBOSE_FLAG "$TARGET_PATH"
