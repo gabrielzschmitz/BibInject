@@ -1,7 +1,6 @@
 import logging
 
 import pytest
-
 from src.group_gen import BIBTEX_SCRIPT, GroupHTMLGenerator
 
 logger = logging.getLogger(__name__)

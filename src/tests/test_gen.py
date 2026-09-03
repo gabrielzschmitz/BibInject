@@ -2,7 +2,6 @@ import logging
 import textwrap
 
 import pytest
-
 from src.gen import Generator, build_bibtex
 
 logger = logging.getLogger(__name__)
