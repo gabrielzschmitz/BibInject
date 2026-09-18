@@ -92,19 +92,19 @@ def test_render_year_month_desc(group_gen, entries):
         "<h2>2015</h2>\n"
         "<h3>March</h3>\n\n"
         '<p id="bi-booklet">\n' + booklet2_button +
-        "\nErik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. "
+        "\nLINDSTROM, Erik; SWETLA, Maria. <em>Hiking Routes Near Stockholm</em>. "
         "Distributed at the Stockholm Hiking Association, mar 2015.\n"
         "</p>\n\n"
         "<h3>July</h3>\n\n"
         '<p id="bi-booklet">\n' + booklet_button +
-        "\nMaria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. "
+        "\nSWETLA, Maria; SUSSKIND, Leonard. <em>Canoe tours in Sweden</em>. "
         "Distributed at the Stockholm Tourist Office, jul 2015.\n"
         "</p>\n\n"
         "<h2>2014</h2>\n"
         "<h3>Unknown</h3>\n\n"
         '<p id="bi-book">\n' + book_button +
-        "\nLeonard Susskind and George Hrabovsky. <em>Classical mechanics: "
-        "the theoretical minimum</em>. Penguin Random House, 2014.\n"
+        "\nSUSSKIND, Leonard; HRABOVSKY, George. <em>Classical mechanics: "
+        "the theoretical minimum</em>. New York: Penguin Random House, 2014.\n"
         "</p>" + BIBTEX_SCRIPT
     )
 
@@ -152,7 +152,7 @@ def test_render_by_author_asc(group_gen, entries):
     def booklet2():
         return (
             '<p id="bi-booklet">\n' + booklet2_button +
-            "\nErik Lindstrom and Maria Swetla. <em>Hiking Routes Near Stockholm</em>. "
+            "\nLINDSTROM, Erik; SWETLA, Maria. <em>Hiking Routes Near Stockholm</em>. "
             "Distributed at the Stockholm Hiking Association, mar 2015.\n"
             "</p>"
         )
@@ -160,7 +160,7 @@ def test_render_by_author_asc(group_gen, entries):
     def booklet():
         return (
             '<p id="bi-booklet">\n' + booklet_button +
-            "\nMaria Swetla and Leonard Susskind. <em>Canoe tours in Sweden</em>. "
+            "\nSWETLA, Maria; SUSSKIND, Leonard. <em>Canoe tours in Sweden</em>. "
             "Distributed at the Stockholm Tourist Office, jul 2015.\n"
             "</p>"
         )
@@ -168,8 +168,8 @@ def test_render_by_author_asc(group_gen, entries):
     def book():
         return (
             '<p id="bi-book">\n' + book_button +
-            "\nLeonard Susskind and George Hrabovsky. <em>Classical mechanics: "
-            "the theoretical minimum</em>. Penguin Random House, 2014.\n"
+            "\nSUSSKIND, Leonard; HRABOVSKY, George. <em>Classical mechanics: "
+            "the theoretical minimum</em>. New York: Penguin Random House, 2014.\n"
             "</p>"
         )
 

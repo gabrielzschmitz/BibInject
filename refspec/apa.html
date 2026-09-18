@@ -1,84 +1,82 @@
 <!-- Article -->
 <p id="bi-article">
   {{author}}. ({{year}}). {{title}}. <em>{{journal}}</em>,
-  <em>{{volume}}</em>({{number}}), {{pages}}.
+  <em>{{volume}}</em>({{number}}), {{pages}}. {{doi_citation}}
 </p>
 
 <!-- Book -->
 <p id="bi-book">
-  {{author}}. ({{year}}). <em>{{title}}</em>. {{publisher}}.
+  {{author}}. ({{year}}). <em>{{title}}</em>. {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Booklet -->
 <p id="bi-booklet">
-  {{author}}. ({{year}}, {{month}}). <em>{{title}}</em>. {{howpublished}}.
+  {{author}}. ({{year}}, {{month}}). <em>{{title}}</em>. {{howpublished}}. {{doi_citation}}
 </p>
 
 <!-- Inbook -->
 <p id="bi-inbook">
   {{author}}. ({{year}}). {{title}}. In <em>{{booktitle}}</em> (pp. {{pages}}).
-  {{publisher}}.
+  {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Incollection -->
 <p id="bi-incollection">
   {{author}}. ({{year}}). {{title}}. In {{editor}} (Eds.),
-  <em>{{booktitle}}</em> (pp. {{pages}}). {{publisher}}.
+  <em>{{booktitle}}</em> (pp. {{pages}}). {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Inproceedings -->
 <p id="bi-inproceedings">
-  {{author}}. ({{year}}). {{title}}. In <em>{{booktitle}}</em> ({{series}}) (pp.
-  {{pages}}). {{publisher}}.
+  {{author}}. ({{year}}). {{title}}. In <em>{{booktitle}}</em>, (pp. {{pages}}). {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Conference (same as inproceedings) -->
 <p id="bi-conference">
-  {{author}}. ({{year}}). {{title}}. In <em>{{booktitle}}</em> ({{series}}) (pp.
-  {{pages}}). {{publisher}}.
+  {{author}}. ({{year}}). {{title}}. In <em>{{booktitle}}</em>, (pp. {{pages}}). {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Manual -->
 <p id="bi-manual">
-  {{author}}. ({{year}}). <em>{{title}}</em>. {{organization}}, {{address}}.
+  {{author}}. ({{year}}). <em>{{title}}</em>. {{organization}}, {{address}}. {{doi_citation}}
 </p>
 
 <!-- Undergraduate Thesis -->
 <p id="bi-thesis">
   {{author}}. ({{year}}, {{month}}). <em>{{title}}</em> (Undergraduate thesis).
-  {{school}}, {{address}}.
+  {{school}}, {{address}}. {{doi_citation}}
 </p>
 
 <!-- Master's Thesis -->
 <p id="bi-mastersthesis">
   {{author}}. ({{year}}, {{month}}). <em>{{title}}</em> (Master's thesis).
-  {{school}}, {{address}}.
+  {{school}}, {{address}}. {{doi_citation}}
 </p>
 
 <!-- PhD Thesis -->
 <p id="bi-phdthesis">
   {{author}}. ({{year}}, {{month}}). <em>{{title}}</em> (Doctoral dissertation).
-  {{school}}, {{address}}.
+  {{school}}, {{address}}. {{doi_citation}}
 </p>
 
 <!-- Misc -->
 <p id="bi-misc">
-  {{author}}. ({{year}}). <em>{{title}}</em>. {{howpublished}}. {{note}}.
+  {{author}}. ({{year}}). <em>{{title}}</em>. {{howpublished}}. {{note}}. {{doi_citation}}
 </p>
 
 <!-- Proceedings -->
 <p id="bi-proceedings">
   {{editor}} (Eds.). ({{year}}). <em>{{title}}</em> ({{series}}, Vol.
-  {{volume}}). {{publisher}}.
+  {{volume}}). {{publisher_location}}. {{doi_citation}}
 </p>
 
 <!-- Tech Report -->
 <p id="bi-techreport">
   {{author}}. ({{year}}, {{month}}). <em>{{title}}</em> (Tech. Rep. No.
-  {{number}}). {{institution}}, {{address}}.
+  {{number}}). {{institution}}, {{address}}. {{doi_citation}}
 </p>
 
 <!-- Unpublished -->
 <p id="bi-unpublished">
-  {{author}}. ({{year}}). <em>{{title}}</em>. Unpublished manuscript.
+  {{author}}. ({{year}}). <em>{{title}}</em>. Unpublished manuscript. {{doi_citation}}
 </p>

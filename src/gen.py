@@ -18,6 +18,106 @@ from .error_handler import (
 error_handler = ErrorHandler()
 
 
+def _split_author_names(author_field: Any) -> list[str]:
+    """Split a BibTeX author field into a list of individual author names."""
+    if not author_field:
+        return []
+    if isinstance(author_field, list):
+        return [str(a) for a in author_field if str(a).strip()]
+    return [
+        a.strip()
+        for a in re.split(r"\s+and\s+", str(author_field), flags=re.IGNORECASE)
+        if a.strip()
+    ]
+
+
+def _parse_author_name(raw: str) -> tuple[str, list[str]]:
+    """Return (surname, given name words) for a single author name.
+
+    Supports both 'First von Last' and 'von Last, First' BibTeX forms.
+    """
+    raw = raw.strip()
+    if not raw:
+        return "", []
+    if "," in raw:
+        surname_part, given_part = raw.split(",", 1)
+        surname = surname_part.strip().split()[-1] if surname_part.strip() else ""
+        given = [w for w in given_part.split() if w]
+    else:
+        words = raw.split()
+        surname = words[-1] if words else ""
+        given = words[:-1]
+    return surname, given
+
+
+def format_authors(author_field: Any, style: str) -> str:
+    """Format a BibTeX author field into APA or ABNT style.
+
+    APA:  'Schmitz, G., Boutrik, A., & Giron, A.'
+    ABNT: 'SCHMITZ, Gabriel; BOUTRIK, Alexandre; GIRON, Alexandre Augusto.'
+    """
+    names = _split_author_names(author_field)
+    formatted: list[str] = []
+    for raw in names:
+        surname, given = _parse_author_name(raw)
+        if not surname:
+            continue
+        if style == "abnt":
+            given_str = " ".join(given)
+            label = f"{surname.upper()}, {given_str}" if given_str else surname.upper()
+        else:
+            initial = f"{given[0][0].upper()}." if given else ""
+            label = f"{surname}, {initial}" if initial else surname
+        formatted.append(label)
+
+    if not formatted:
+        return ""
+    if style == "abnt":
+        return "; ".join(formatted)
+    if len(formatted) == 1:
+        return formatted[0]
+    return ", ".join(formatted[:-1]) + f", & {formatted[-1]}"
+
+
+def normalize_pages(pages: Any) -> str:
+    """Normalize a page range so dashes render as a single hyphen (346--347 → 346-347)."""
+    text = str(pages).strip()
+    text = re.sub(r"[–—]", "-", text)
+    text = re.sub(r"-{2,}", "-", text)
+    text = re.sub(r"\s+", "", text)
+    return text
+
+
+PUBLISHER_NAMES: dict[str, str] = {
+    "SBC": "Sociedade Brasileira de Computação",
+    "IEEE": "Institute of Electrical and Electronics Engineers",
+    "ACM": "Association for Computing Machinery",
+    "Springer": "Springer",
+    "Elsevier": "Elsevier",
+    "Wiley": "John Wiley & Sons",
+}
+
+
+def expand_publisher(publisher: str) -> str:
+    """Expand a well-known publisher abbreviation to its full name."""
+    return PUBLISHER_NAMES.get(publisher.strip(), publisher)
+
+
+def city_only(address: str) -> str:
+    """Reduce an address like 'Porto Alegre, RS, Brasil' to its first part."""
+    return address.split(",", 1)[0].strip()
+
+
+def doi_citation(doi: Any, style: str) -> str:
+    """Return a printable DOI citation suffix, or an empty string when absent."""
+    value = str(doi).strip() if doi else ""
+    if not value:
+        return ""
+    if style == "abnt":
+        return f"DOI: https://doi.org/{value}"
+    return f"doi:{value}"
+
+
 def build_bibtex(entry: dict[str, Any]) -> str:
     """
     Reconstruct a complete BibTeX entry string from parsed entry data.
@@ -103,6 +203,7 @@ class Generator:
         """
         self.data = entry
         self.template_name = template_name
+        self.style = template_name.removesuffix(".html")
         self.type = str(entry["type"])
         self.doi_icon = doi_icon
 
@@ -139,6 +240,35 @@ class Generator:
 
         return content
 
+    def _render_fields(self) -> dict[str, Any]:
+        """Return the entry fields with citation-style transformations applied.
+
+        For the built-in 'apa'/'abnt' styles, the author list is inverted,
+        page ranges are normalized, and derived placeholders for publisher
+        location and DOI citation are provided.
+        """
+        fields = dict(self.data.get("fields", {}))
+
+        if self.style in ("apa", "abnt"):
+            fields["author"] = format_authors(fields.get("author", ""), self.style)
+            if fields.get("pages"):
+                fields["pages"] = normalize_pages(fields["pages"])
+
+            fields["doi_citation"] = doi_citation(fields.get("doi"), self.style)
+
+            publisher = fields.get("publisher")
+            if publisher:
+                if self.style == "abnt":
+                    publisher = expand_publisher(publisher)
+                address = fields.get("address")
+                fields["publisher_location"] = (
+                    f"{city_only(address)}: {publisher}"
+                    if address
+                    else publisher
+                )
+
+        return fields
+
     def _render(self, elements: list[str]) -> str:
         """
         Renders the HTML template by replacing placeholders with data values.
@@ -156,9 +286,11 @@ class Generator:
         middle = elements[1]
         closing_tag = elements[2]
 
+        render_fields = self._render_fields()
+
         def replacer(match):
             key = match.group(1).strip()
-            value = dict(self.data["fields"]).get(key)
+            value = render_fields.get(key)
             if value is None:
                 error_handler.warning(f"Missing value for placeholder '{{{{{key}}}}}'")
                 return ""
